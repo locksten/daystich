@@ -4,6 +4,8 @@
 !.vscode/blueprint-templates
 !.vscode/launch.json
 
+storybook-static
+
 # dependencies
 /node_modules
 /.pnp
