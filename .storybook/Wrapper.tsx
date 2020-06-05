@@ -1,7 +1,13 @@
 /** @jsx jsx */
-import { jsx } from "@emotion/core"
-import { FC } from "react"
+import { jsx, Global } from "@emotion/core"
+import { FC, Fragment } from "react"
+import { globalStyle } from "../src/styling/Themes"
 import "tailwindcss/dist/base.css"
-import tw from "twin.macro"
+import "twin.macro"
 
-export const Wrapper: FC<any> = (content) => <div css={tw`p-10`}>{content}</div>
+export const Wrapper: FC<any> = (content) => (
+  <Fragment>
+    <Global styles={globalStyle} />
+    <div tw="p-10">{content}</div>
+  </Fragment>
+)

@@ -28,6 +28,11 @@
     "storybook": "start-storybook -p 9009 --ci -s public",
     "build-storybook": "build-storybook -s public"
   },
+  "babelMacros": {
+    "twin": {
+      "config": "src/styling/tailwind.config.js"
+    }
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"

@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { FC, ReactNode } from "react"
-import tw from "twin.macro"
+import "twin.macro"
 
 type BaseButtonProps = CommonButtonProps & {
   leading?: ReactNode
@@ -46,8 +46,8 @@ export const BaseButton: FC<BaseButtonProps> = ({
     )
 
   return (
-    <Container css={tw`focus:outline-none focus:shadow-outline`} {...props}>
-      <div css={tw`flex justify-center items-center`}>
+    <Container tw="focus:outline-none focus:shadow-outline" {...props}>
+      <div tw="flex justify-center items-center">
         {leading}
         {middle}
         {trailing}
