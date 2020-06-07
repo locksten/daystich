@@ -1,15 +1,16 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { BaseButton, CommonButtonProps } from "components/BaseButton"
+import { Clickable, ClickableProps } from "components/Clickable"
 import { FC } from "react"
 import "twin.macro"
 
-type SecondaryButton = CommonButtonProps & { text: string }
+type SecondaryButton = ClickableProps & { text: string }
 
 export const SecondaryButton: FC<SecondaryButton> = ({ text, ...props }) => (
-  <BaseButton
-    tw="py-1 px-2 rounded-md font-semibold text-teal-500 bg-gray-200 active:bg-gray-300"
-    middle={text}
+  <Clickable
+    tw="py-1 px-2 rounded-md shadow font-semibold text-white bg-gray-500 active:bg-gray-600"
     {...props}
-  ></BaseButton>
+  >
+    <div tw="flex justify-center items-center">{text}</div>
+  </Clickable>
 )

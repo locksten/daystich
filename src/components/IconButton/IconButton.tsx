@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { BaseButton, CommonButtonProps } from "components/BaseButton"
+import { Clickable, ClickableProps } from "components/Clickable"
 import { FC, ReactElement } from "react"
 import { FaRegStar, FaStar } from "react-icons/fa"
 import "twin.macro"
@@ -12,12 +12,13 @@ export const NameToIcon: { [key in IconName]: ReactElement } = {
   emptyStar: <FaRegStar />,
 }
 
-type IconButtonProps = CommonButtonProps & { icon: IconName }
+type IconButtonProps = ClickableProps & { icon: IconName }
 
 export const IconButton: FC<IconButtonProps> = ({ icon, ...props }) => (
-  <BaseButton
+  <Clickable
     tw="p-2 rounded-full border bg-gray-100 hover:bg-gray-200"
-    middle={NameToIcon[icon]}
     {...props}
-  ></BaseButton>
+  >
+    <div tw="flex justify-center items-center">{NameToIcon[icon]}</div>
+  </Clickable>
 )
