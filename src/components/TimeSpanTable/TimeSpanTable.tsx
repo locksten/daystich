@@ -13,8 +13,8 @@ import { selectTagById } from "ducks/tag"
 import { addTestTimeSpans, addTimeSpan, selectTimespans } from "ducks/timeSpan"
 import { FC, Fragment } from "react"
 import { useForm } from "react-hook-form"
-import { useDispatch } from "react-redux"
 import "twin.macro"
+import { useAppDispatch } from "ducks/redux/store"
 
 type Inputs = {
   mainTagId: string
@@ -39,7 +39,7 @@ const Tags: FC<{ ids: Id[] }> = ({ ids }) => {
 
 export const TimeSpanTable: FC<{}> = () => {
   const timeSpans = useAppSelector(selectTimespans)
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const { register, handleSubmit, reset } = useForm<Inputs>()
   const onSubmit = ({ mainTagId, startTime, tagIds }: Inputs) => {

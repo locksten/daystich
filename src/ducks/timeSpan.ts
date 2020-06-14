@@ -1,11 +1,13 @@
 import {
   createEntityAdapter,
-  createSlice,
-  PayloadAction,
   createSelector,
+  createSlice,
+  nanoid,
+  PayloadAction,
 } from "@reduxjs/toolkit"
 import { Duration, Id, Timestamp } from "common"
 import { RootState } from "ducks/redux/rootReducer"
+import { useDispatch } from "react-redux"
 
 export type TimeSpan = {
   id: Id
@@ -94,5 +96,18 @@ export const {
   selectAll: selectTimespans,
   selectById: selectTimespanById,
 } = { ...timeSpansSlice.actions, ...selectors }
+
+export const useAddTimeSpanNow = () => {
+  const dispatch = useDispatch()
+  return (span: Pick<TimeSpan, "mainTagId" | "tagIds">) =>
+    dispatch(
+      addTimeSpan({
+        id: nanoid(),
+        mainTagId: span.mainTagId,
+        startTime: Date.now(),
+        tagIds: span.tagIds,
+      }),
+    )
+}
 
 export default timeSpansSlice.reducer

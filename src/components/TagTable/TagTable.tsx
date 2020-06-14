@@ -7,10 +7,10 @@ import { Input } from "components/Input"
 import { PrimaryButton } from "components/PrimaryButton"
 import { Table } from "components/Table"
 import { useAppSelector } from "ducks/redux/rootReducer"
+import { useAppDispatch } from "ducks/redux/store"
 import { addTag, selectTags } from "ducks/tag"
 import { FC } from "react"
 import { useForm } from "react-hook-form"
-import { useDispatch } from "react-redux"
 import "twin.macro"
 
 type Inputs = {
@@ -20,7 +20,7 @@ type Inputs = {
 
 export const TagTable: FC<{}> = () => {
   const tags = useAppSelector(selectTags)
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const { register, handleSubmit, reset } = useForm<Inputs>()
   const onSubmit = ({ name, parentTagId }: Inputs) => {

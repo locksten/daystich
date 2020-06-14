@@ -1,11 +1,12 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Card } from "Card"
+import { Clickable } from "components/Clickable"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { selectTagById, selectTagChildrenIds } from "ducks/tag"
+import { useAddTimeSpanNow } from "ducks/timeSpan"
 import { FC } from "react"
 import "twin.macro"
-import { Clickable } from "components/Clickable"
 
 export const ActivityList: FC<{ tagId: string }> = ({ tagId }) => {
   const tagChildrenIds = useAppSelector((s) => selectTagChildrenIds(s, tagId))
@@ -70,8 +71,17 @@ const TagTitle: FC<{ tagId: string }> = ({ tagId }) => {
 
 const SingleTag: FC<{ tagId: string }> = ({ tagId }) => {
   const tag = useAppSelector((s) => selectTagById(s, tagId))!
+  const addTimespanNow = useAddTimeSpanNow()
   return (
-    <Clickable tw="h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white active:text-white text-lg font-bold hover:bg-green-500">
+    <Clickable
+      tw="h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white active:text-white text-lg font-bold hover:bg-green-500"
+      onClick={() =>
+        addTimespanNow({
+          mainTagId: tagId,
+          tagIds: [],
+        })
+      }
+    >
       {tag.name}
       <div tw="flex items-center px-1 text-sm font-light"></div>
     </Clickable>
