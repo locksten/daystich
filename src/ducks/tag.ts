@@ -3,7 +3,7 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit"
-import { Id } from "common"
+import { Id, Color } from "common"
 import { RootState } from "ducks/redux/rootReducer"
 import createCachedSelector from "re-reselect"
 
@@ -11,6 +11,8 @@ export type Tag = {
   id: Id
   parentTagId?: Id
   name: string
+  displayAtTopLevel: boolean
+  color: Color
 }
 
 const selectTagState = (state: RootState) => state.tag
@@ -26,10 +28,12 @@ const tagSlice = createSlice({
     addTag(
       state,
       {
-        payload: { id, name, parentTagId },
-      }: PayloadAction<Pick<Tag, "id" | "name" | "parentTagId">>,
+        payload: { id, name, parentTagId, displayAtTopLevel, color },
+      }: PayloadAction<
+        Pick<Tag, "id" | "name" | "parentTagId" | "displayAtTopLevel" | "color">
+      >,
     ) {
-      adapter.addOne(state, { id, name, parentTagId })
+      adapter.addOne(state, { id, name, parentTagId, displayAtTopLevel, color })
     },
   },
 })

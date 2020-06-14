@@ -24,7 +24,15 @@ export const TagTable: FC<{}> = () => {
 
   const { register, handleSubmit, reset } = useForm<Inputs>()
   const onSubmit = ({ name, parentTagId }: Inputs) => {
-    dispatch(addTag({ id: nanoid(), name, parentTagId }))
+    dispatch(
+      addTag({
+        id: nanoid(),
+        name,
+        parentTagId,
+        displayAtTopLevel: false,
+        color: "#ffffff",
+      }),
+    )
     reset({ parentTagId })
   }
 

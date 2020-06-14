@@ -6,4 +6,7 @@ export const globalStyle = css`
     ${tw`bg-gray-100 text-gray-800`}
     font-family: 'Nunito', sans-serif;
   }
+  button {
+    font-weight: inherit;
+  }
 `

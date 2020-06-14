@@ -4,7 +4,7 @@ import { FC } from "react"
 import "twin.macro"
 
 export type ClickableProps = {
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
   link?: string
   type?: "link" | "button" | "submitButton" | "resetButton"
 }
@@ -18,7 +18,7 @@ export const Clickable: FC<ClickableProps> = ({
 }) =>
   type === "link" || (type === undefined && link !== undefined) ? (
     <a
-      onClick={() => onClick?.()}
+      onClick={(e) => onClick?.(e)}
       href={link}
       tw="focus:outline-none focus:shadow-outline"
       {...props}
@@ -27,7 +27,7 @@ export const Clickable: FC<ClickableProps> = ({
     </a>
   ) : (
     <button
-      onClick={() => onClick?.() /* +route */}
+      onClick={(e) => onClick?.(e) /* +route */}
       type={
         type === "submitButton"
           ? "submit"

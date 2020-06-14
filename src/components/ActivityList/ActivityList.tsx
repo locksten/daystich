@@ -1,89 +1,139 @@
 /** @jsx jsx */
-import { jsx } from "@emotion/core"
+import { css, jsx } from "@emotion/core"
 import { Card } from "Card"
+import { useAddTagModal } from "components/AddTagModal"
 import { Clickable } from "components/Clickable"
+import { SecondaryButton } from "components/SecondaryButton"
 import { useAppSelector } from "ducks/redux/rootReducer"
-import { selectTagById, selectTagChildrenIds } from "ducks/tag"
+import { selectTagById, selectTagChildrenIds, selectTags } from "ducks/tag"
 import { useAddTimeSpanNow } from "ducks/timeSpan"
-import { FC } from "react"
+import { FC, Fragment } from "react"
 import "twin.macro"
+import tw from "twin.macro"
 
 export const ActivityList: FC<{ tagId: string }> = ({ tagId }) => {
   const tagChildrenIds = useAppSelector((s) => selectTagChildrenIds(s, tagId))
+  const topLevel = useAppSelector(selectTags)
+    .filter((t) => t.displayAtTopLevel === true)
+    .map((t) => t.id)
+  const tagIds = [...tagChildrenIds, ...topLevel]
+
+  const { Modal, openModal } = useAddTagModal(tagId)
+
   return (
-    <div tw="grid grid-cols-3 gap-4">
-      {tagChildrenIds.map((childId) => (
-        <div key={childId}>
-          <Card tw="bg-green-400 leading-none">
-            <div tw="grid gap-1 pl-1">
-              <TopLevelTitleTag tagId={childId} />
-              <TagList tagId={childId} level={1} />
-            </div>
-          </Card>
-        </div>
-      ))}
-    </div>
+    <Fragment>
+      <div tw="grid grid-cols-3 gap-4">
+        {tagIds.map((childId) => (
+          <div key={childId}>
+            <ActivityListCard tagId={childId} />
+          </div>
+        ))}
+        <SecondaryButton text="Add" onClick={openModal} />
+      </div>
+      <Modal />
+    </Fragment>
   )
 }
 
-const TagList: FC<{ tagId: string; level: number }> = ({ tagId, level }) => {
-  const tagChildrenIds = useAppSelector((s) => selectTagChildrenIds(s, tagId))
+const ActivityListCard: FC<{ tagId: string }> = ({ tagId }) => {
+  const tag = useAppSelector((s) => selectTagById(s, tagId))!
   return (
-    <div tw="grid gap-1">
-      {tagChildrenIds.map((childId) => (
-        <ChildTag key={childId} level={level + 1} tagId={childId} />
-      ))}
-    </div>
+    <Card css={{ backgroundColor: tag.color || "red" }}>
+      <div tw="leading-none pl-1 grid gap-1">
+        <SingleTag tagId={tagId} root={true} />
+        <TagList tagId={tagId} />
+      </div>
+    </Card>
   )
 }
 
-const ChildTag: FC<{ tagId: string; level: number }> = ({ tagId, level }) => {
-  const tagChildrenIds = useAppSelector((s) => selectTagChildrenIds(s, tagId))
+const TagList: FC<{ tagId: string }> = ({ tagId }) => {
+  // const tagChildrenIds = useAppSelector((s) => selectTagChildrenIds(s, tagId))
+  const tagChildrenIds = useAppSelector(selectTags)
+    .filter((t) => t.displayAtTopLevel !== true && t.parentTagId === tagId)
+    .map((t) => t.id)
   return (
-    <div tw="pl-3">
-      {tagChildrenIds.length === 0 ? (
-        <div tw="grid">
-          <SingleTag tagId={tagId} />
-        </div>
-      ) : (
+    <Fragment>
+      {tagChildrenIds.length !== 0 && (
         <div tw="grid gap-1">
-          <TagTitle tagId={tagId} />
-          <TagList tagId={tagId} level={level} />
+          {tagChildrenIds.map((childId) => (
+            <div key={childId} tw="pl-3 grid gap-1">
+              <SingleTag tagId={childId} />
+              <TagList tagId={childId} />
+            </div>
+          ))}
         </div>
       )}
-    </div>
+    </Fragment>
   )
 }
 
-const TopLevelTitleTag: FC<{ tagId: string }> = ({ tagId }) => {
-  const tag = useAppSelector((s) => selectTagById(s, tagId))!
-  return (
-    <div tw="text-white text-xl font-extrabold cursor-default">{tag.name}</div>
-  )
-}
-
-const TagTitle: FC<{ tagId: string }> = ({ tagId }) => {
-  const tag = useAppSelector((s) => selectTagById(s, tagId))!
-  return (
-    <div tw="h-5 text-white text-lg font-bold cursor-default">{tag.name}</div>
-  )
-}
-
-const SingleTag: FC<{ tagId: string }> = ({ tagId }) => {
+const SingleTag: FC<{ tagId: string; root?: boolean }> = ({
+  tagId,
+  root = false,
+}) => {
   const tag = useAppSelector((s) => selectTagById(s, tagId))!
   const addTimespanNow = useAddTimeSpanNow()
+
+  const isLeaf =
+    useAppSelector((s) => selectTagChildrenIds(s, tagId)).length === 0
+  const isRoot = root || tag.displayAtTopLevel
+  const isMiddle = !isLeaf && !isRoot
+
+  const { Modal, openModal } = useAddTagModal(tag.id)
+
+  const TagName: FC<{}> = ({ children, ...props }) =>
+    isLeaf ? (
+      <Clickable
+        onClick={() =>
+          addTimespanNow({
+            mainTagId: tagId,
+            tagIds: [],
+          })
+        }
+        {...props}
+      >
+        {children}
+      </Clickable>
+    ) : (
+      <div tw="cursor-default" {...props}>
+        {children}
+      </div>
+    )
+
+  const Side: FC<{}> = ({ children, ...props }) => (
+    <div tw="flex items-center px-1" {...props}>
+      {children}
+    </div>
+  )
+
   return (
-    <Clickable
-      tw="h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white active:text-white text-lg font-bold hover:bg-green-500"
-      onClick={() =>
-        addTimespanNow({
-          mainTagId: tagId,
-          tagIds: [],
-        })
-      }
-    >
-      {tag.name}
-      <div tw="flex items-center px-1 text-sm font-light"></div>
-    </Clickable>
+    <Fragment>
+      <div
+        css={css`
+          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white active:text-white`};
+          ${isRoot && tw`text-xl font-extrabold`};
+          ${tw`text-lg font-semibold`};
+          ${isMiddle && tw``};
+          ${isLeaf &&
+          css`
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.05);
+            }
+          `};
+        `}
+      >
+        <TagName tw="flex-grow flex justify-between">{tag.name}</TagName>
+        <Side>
+          <Clickable
+            tw="text-transparent hover:text-white text-lg font-bold"
+            onClick={openModal}
+          >
+            +
+          </Clickable>
+        </Side>
+      </div>
+      <Modal />
+    </Fragment>
   )
 }

@@ -1,11 +1,12 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Card } from "Card"
+import { useIntervalState } from "common"
 import { formatDistanceToNowStrict } from "date-fns"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { selectTagById } from "ducks/tag"
 import { selectActiveTimespan, TimeSpan } from "ducks/timeSpan"
-import { FC, useEffect, useState } from "react"
+import { FC } from "react"
 import "twin.macro"
 
 export const ActiveTimeSpan: FC<{}> = () => {
@@ -27,24 +28,15 @@ export const ActiveTimeSpanNotExisting: FC<{}> = () => (
   </Card>
 )
 
-function useIntervalState<S>(fn: () => S, ms: number = 1000) {
-  const [state, setState] = useState(fn)
-  useEffect(() => {
-    setState(fn)
-    const interval = setInterval(() => setState(fn), ms)
-    return () => {
-      clearInterval(interval)
-    }
-  }, [fn, ms])
-  return state
-}
-
 export const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
-  const mainTag = useAppSelector((s) => selectTagById(s, span.mainTagId))
+  const mainTag = useAppSelector((s) => selectTagById(s, span.mainTagId))!
 
   return (
-    <Card tw="max-w-xl w-full px-8 py-8 flex justify-between items-center bg-green-400 text-white">
-      <div tw="font-semibold text-3xl">{mainTag?.name}</div>
+    <Card
+      tw="max-w-xl w-full px-8 py-8 flex justify-between items-center text-white"
+      css={{ backgroundColor: mainTag.color }}
+    >
+      <div tw="font-semibold text-3xl">{mainTag.name}</div>
       <ActiveTimeSpanTime span={span} />
     </Card>
   )
