@@ -5,7 +5,7 @@ import { TypedUseSelectorHook, useSelector } from "react-redux"
 import { persistReducer } from "redux-persist"
 import storage from "redux-persist/lib/storage"
 
-const persistConfig = {
+export const persistConfig = {
   key: "root",
   storage,
 }

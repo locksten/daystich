@@ -35,10 +35,10 @@ const tagSlice = createSlice({
 })
 
 export const selectTagChildrenIds = createCachedSelector(
-  selectTagState,
+  selectors.selectEntities,
   (_: RootState, parentTagId: Id) => parentTagId,
   (tags, parentTagId) =>
-    Object.values(tags.entities)
+    Object.values(tags)
       .filter((tag) => tag?.parentTagId === parentTagId)
       .map((tag) => tag!.id),
 )((_: RootState, parentTagId) => parentTagId || "")

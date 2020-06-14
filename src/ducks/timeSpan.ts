@@ -2,6 +2,7 @@ import {
   createEntityAdapter,
   createSlice,
   PayloadAction,
+  createSelector,
 } from "@reduxjs/toolkit"
 import { Duration, Id, Timestamp } from "common"
 import { RootState } from "ducks/redux/rootReducer"
@@ -20,7 +21,9 @@ const adapter = createEntityAdapter<TimeSpan>({
     a === b ? 0 : a < b ? 1 : -1,
 })
 
-const selectors = adapter.getSelectors((state: RootState) => state.timeSpans)
+const selecTimeSpanState = (state: RootState) => state.timeSpans
+
+const selectors = adapter.getSelectors(selecTimeSpanState)
 
 const timeSpanDuration = (span: TimeSpan) =>
   span.endTime && span.endTime - span.startTime + 1
@@ -78,6 +81,12 @@ const timeSpansSlice = createSlice({
     },
   },
 })
+
+export const selectActiveTimespan = createSelector(
+  selectors.selectIds,
+  selectors.selectEntities,
+  (timeSpanIds, timeSpans) => timeSpans[timeSpanIds[0]],
+)
 
 export const {
   addTimeSpan,

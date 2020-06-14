@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { Global, jsx } from "@emotion/core"
+import { ActiveTimeSpan } from "components/ActiveTimeSpan"
 import { ActivityList } from "components/ActivityList"
 import { SecondaryButton } from "components/SecondaryButton"
 import { TagTable } from "components/TagTable"
@@ -22,9 +23,10 @@ export const App: FC = () => {
             onClick={() => localStorage.removeItem("persist:root")}
           />
           <Global styles={globalStyle} />
-          <TimeSpanTable />
           <TagTable />
-          <ActivityList tagId="x0DdtYqkAu1ph9VgVIaHm" />
+          <TimeSpanTable />
+          <ActiveTimeSpan />
+          <ActivityList tagId="NPmUg04oS8hyCYiLXRadq" />
         </div>
       </PersistGate>
     </ReduxProvider>

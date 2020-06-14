@@ -2,11 +2,12 @@
 import { jsx } from "@emotion/core"
 import { nanoid } from "@reduxjs/toolkit"
 import { Card } from "Card"
-import { Id } from "common"
+import { formatISOTime, Id } from "common"
 import { Input } from "components/Input"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { Table } from "components/Table"
+import { formatDistanceStrict } from "date-fns"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { selectTagById } from "ducks/tag"
 import { addTestTimeSpans, addTimeSpan, selectTimespans } from "ducks/timeSpan"
@@ -46,7 +47,7 @@ export const TimeSpanTable: FC<{}> = () => {
       addTimeSpan({
         id: nanoid(),
         mainTagId,
-        startTime: Number(startTime),
+        startTime: startTime === "" ? Date.now() : Number(startTime),
         tagIds: tagIds.split(","),
       }),
     )
@@ -76,9 +77,11 @@ export const TimeSpanTable: FC<{}> = () => {
             <td>
               <Tags ids={ts.tagIds} />
             </td>
-            <td>{ts.startTime}</td>
-            <td>{ts.endTime}</td>
-            <td>{ts.duration}</td>
+            <td>{formatISOTime(ts.startTime)}</td>
+            <td>{ts.endTime && formatISOTime(ts.endTime)}</td>
+            <td>
+              {ts.endTime && formatDistanceStrict(ts.startTime, ts.endTime)}
+            </td>
           </tr>
         ))}
       </Table>

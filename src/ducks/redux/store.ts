@@ -1,8 +1,8 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit"
 import { profilingMiddleware } from "ducks/redux/profilingMiddleware"
-import rootReducer from "ducks/redux/rootReducer"
+import rootReducer, { persistConfig } from "ducks/redux/rootReducer"
 import { useDispatch } from "react-redux"
-import { persistStore } from "redux-persist"
+import { persistStore, persistReducer } from "redux-persist"
 
 const middleware = getDefaultMiddleware({
   serializableCheck: {
@@ -27,7 +27,7 @@ export const useAppDispatch = () => useDispatch<AppDispatch>()
 if (process.env.NODE_ENV === "development" && module.hot) {
   module.hot.accept("ducks/redux/rootReducer", () => {
     const newRootReducer = require("ducks/redux/rootReducer").default
-    store.replaceReducer(newRootReducer)
+    store.replaceReducer(persistReducer(persistConfig, newRootReducer))
   })
 }
 
