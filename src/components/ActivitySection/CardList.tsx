@@ -20,6 +20,7 @@ import { addTimeSpanNow } from "ducks/timeSpan"
 import { FC, Fragment, ReactNode } from "react"
 import "twin.macro"
 import tw from "twin.macro"
+import { useEditActivityModal } from "components/EditActivityModal"
 
 const CardList: FC<{
   ids: Id[]
@@ -42,9 +43,9 @@ const CardList: FC<{
   )
 }
 
-export const TagCardList: FC<{ tagId: Id }> = ({ tagId }) => {
-  const ids = useAppSelector((s) => selectTagChildrenIds(s, tagId))
-  const { Modal, openModal } = useAddTagModal(tagId)
+export const TagCardList: FC<{ id: Id }> = ({ id }) => {
+  const ids = useAppSelector((s) => selectTagChildrenIds(s, id))
+  const { Modal, openModal } = useAddTagModal(id)
   return (
     <CardList
       RenderCard={TagListCard}
@@ -118,14 +119,18 @@ const List: FC<{
   RenderSingle: FC<{ id: Id }>
 }> = ({ ids, RenderList, RenderSingle }) => {
   return (
-    <div tw="grid gap-1">
-      {ids.map((id) => (
-        <div key={id} tw="pl-3 grid gap-1">
-          <RenderSingle id={id} />
-          <RenderList id={id} />
+    <Fragment>
+      {ids.length !== 0 && (
+        <div tw="grid gap-1">
+          {ids.map((id) => (
+            <div key={id} tw="pl-3 grid gap-1">
+              <RenderSingle id={id} />
+              <RenderList id={id} />
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      )}
+    </Fragment>
   )
 }
 
@@ -177,7 +182,7 @@ const Single: FC<{
     <Fragment>
       <div
         css={css`
-          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white active:text-white`};
+          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white`};
           ${isTopLevel && tw`text-xl font-extrabold`};
           ${!isTopLevel && !isLeaf && tw`text-lg font-semibold`};
           ${!isTopLevel &&
@@ -211,17 +216,19 @@ const SingleActivity: FC<{ id: Id; topLevel?: boolean }> = ({
   const { Modal: AddModal, openModal: openAddModal } = useAddActivityModal(
     tag.id,
   )
+  const { Modal: EditModal, openModal: openEditModal } = useEditActivityModal(
+    tag.id,
+  )
 
   const TopLevelNote: FC<{}> = () => {
     const ParentTagName: FC<{ parentTagId: Id }> = ({ parentTagId }) => {
       const parentTag = useAppSelector((s) => selectTagById(s, parentTagId))!
-      return <Fragment> ({parentTag.name})</Fragment>
+      return <Fragment>{parentTag.name}</Fragment>
     }
     return (
       <Fragment>
         {activity.displayAtTopLevel && (
-          <div tw="text-gray-400 text-xs font-light py-1">
-            TopLevel
+          <div tw="text-white text-xs font-light py-1">
             {tag.parentTagId && <ParentTagName parentTagId={tag.parentTagId} />}
           </div>
         )}
@@ -232,6 +239,7 @@ const SingleActivity: FC<{ id: Id; topLevel?: boolean }> = ({
   const Side = (
     <Fragment>
       <SideAddButton onClick={openAddModal} />
+      <SideEditButton onClick={openEditModal} />
     </Fragment>
   )
 
@@ -250,11 +258,12 @@ const SingleActivity: FC<{ id: Id; topLevel?: boolean }> = ({
         />
       </div>
       <AddModal />
+      <EditModal />
     </Fragment>
   )
 }
 
-const SingleTag: FC<{ id: Id; topLevel?: boolean }> = ({
+export const SingleTag: FC<{ id: Id; topLevel?: boolean }> = ({
   id: tagId,
   topLevel = false,
 }) => {
@@ -296,7 +305,7 @@ const SideButton: FC<{ onClick: () => void }> = ({ onClick, children }) => (
   </Clickable>
 )
 
-const SideEditButton: FC<{ onClick: () => void }> = ({ onClick }) => (
+export const SideEditButton: FC<{ onClick: () => void }> = ({ onClick }) => (
   <SideButton onClick={onClick}>e</SideButton>
 )
 

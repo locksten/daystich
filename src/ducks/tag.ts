@@ -14,6 +14,7 @@ import {
   defaultTagColor,
   removeActivity,
   rootActivityTag,
+  updateActivity,
 } from "ducks/redux/common"
 import { RootState } from "ducks/redux/rootReducer"
 import createCachedSelector from "re-reselect"
@@ -41,11 +42,25 @@ const tagSlice = createSlice({
     removeTag(state, { payload: { id } }: PayloadAction<Pick<Tag, "id">>) {
       adapter.removeOne(state, id)
     },
+    updateTag(
+      state,
+      {
+        payload: tag,
+      }: PayloadAction<Pick<Tag, "id"> & Partial<Pick<Tag, "name" | "color">>>,
+    ) {
+      adapter.updateOne(state, { id: tag.id, changes: tag })
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(addActivity, (state, { payload: { activityTag } }) => {
       adapter.addOne(state, activityTag)
     })
+    builder.addCase(
+      updateActivity,
+      (state, { payload: { id, activityTag } }) => {
+        adapter.updateOne(state, { id, changes: activityTag })
+      },
+    )
     builder.addCase(removeActivity, (state, { payload: { id } }) => {
       adapter.removeOne(state, id)
     })
@@ -54,7 +69,7 @@ const tagSlice = createSlice({
 
 export const tagReducer = tagSlice.reducer
 
-export const { removeTag } = {
+export const { removeTag, updateTag } = {
   ...tagSlice.actions,
 }
 

@@ -6,15 +6,23 @@ import "twin.macro"
 type CheckboxProps = {
   name: string
   label: string
+  checked?: boolean
+  defaultChecked?: boolean
 }
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ name, label }, ref) => (
+  ({ name, label, checked, defaultChecked }, ref) => (
     <div tw="flex items-center">
       <label tw="pr-2" htmlFor={name}>
         {label}
       </label>
-      <input ref={ref} name={name} type="checkbox" />
+      <input
+        ref={ref}
+        name={name}
+        type="checkbox"
+        checked={checked}
+        defaultChecked={defaultChecked}
+      />
     </div>
   ),
 )

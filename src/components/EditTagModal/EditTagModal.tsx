@@ -1,29 +1,36 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
-import { Checkbox } from "components/Checkbox"
 import { Modal, useModal } from "components/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { TextField } from "components/TextField"
+import { useAppSelector } from "ducks/redux/rootReducer"
 import { useAppDispatch } from "ducks/redux/store"
-import { removeTag } from "ducks/tag"
+import { removeTag, selectTagById, updateTag } from "ducks/tag"
 import { FC } from "react"
 import { useForm } from "react-hook-form"
 import "twin.macro"
 
-type Inputs = {
+export type Inputs = {
   name: string
   color: Color
 }
 
-const EditTagModal: FC<{ tagId: Id }> = ({ tagId }) => {
+const EditTagModal: FC<{ id: Id }> = ({ id }) => {
   const dispatch = useAppDispatch()
 
-  const { register, handleSubmit } = useForm<Inputs>()
-  const onSubmit = ({ name, color }: Inputs) => {
-    // dispatch(addTag({ id: nanoid(), name, parentTagId, color }))
-    console.log(name, color)
+  const tag = useAppSelector((s) => selectTagById(s, id))
+
+  const { register, handleSubmit } = useForm<Inputs>({
+    defaultValues: {
+      name: tag?.name,
+      color: tag?.color,
+    },
+  })
+
+  const onSubmit = (inputs: Inputs) => {
+    dispatch(updateTag({ ...inputs, id }))
   }
 
   return (
@@ -33,27 +40,20 @@ const EditTagModal: FC<{ tagId: Id }> = ({ tagId }) => {
     >
       <TextField ref={register} name="name" label="Name" />
       <TextField ref={register} name="color" label="Color" />
-      <Checkbox
-        ref={register}
-        name="displayAtTopLevel"
-        label="Display at top level"
+      <SecondaryButton
+        tw="text-red-600"
+        text="Delete"
+        onClick={() => dispatch(removeTag({ id }))}
       />
-      <div tw="grid grid-flow-col gap-2">
-        <PrimaryButton text="Save" type="submitButton" />
-        <SecondaryButton
-          tw="text-red-600"
-          text="Delete"
-          onClick={() => dispatch(removeTag({ id: tagId }))}
-        />
-      </div>
+      <PrimaryButton text="Save" type="submitButton" />
     </form>
   )
 }
 
-export const useEditTagModal = (tagId: Id) => {
+export const useEditTagModal = (id: Id) => {
   return useModal((props) => (
-    <Modal aria-label="Add tag" tw="max-w-xs" {...props}>
-      <EditTagModal tagId={tagId} />
+    <Modal aria-label="Edit tag" tw="max-w-xs" {...props}>
+      <EditTagModal id={id} />
     </Modal>
   ))
 }

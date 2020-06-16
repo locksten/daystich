@@ -9,6 +9,7 @@ import {
   removeActivity,
   rootActivity,
   rootActivityId,
+  updateActivity,
 } from "ducks/redux/common"
 import { RootState } from "ducks/redux/rootReducer"
 import {
@@ -38,6 +39,9 @@ const activitySlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(addActivity, (state, { payload: { activity } }) => {
       adapter.addOne(state, activity)
+    })
+    builder.addCase(updateActivity, (state, { payload: { id, activity } }) => {
+      adapter.updateOne(state, { id, changes: activity })
     })
     builder.addCase(removeActivity, (state, { payload: { id } }) => {
       adapter.removeOne(state, id)

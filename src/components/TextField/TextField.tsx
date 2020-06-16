@@ -8,10 +8,15 @@ type TextFieldProps = {
   label: string
   autocomplete?: boolean
   type?: string
+  value?: string
+  defaultValue?: string
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ name, label, type = "text", autocomplete = false }, ref) => (
+  (
+    { name, label, type = "text", autocomplete = false, value, defaultValue },
+    ref,
+  ) => (
     <div tw="grid">
       <label tw="font-light text-sm" htmlFor={name}>
         {label}
@@ -21,6 +26,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         name={name}
         ref={ref}
         type={type}
+        value={value}
+        defaultValue={defaultValue}
         autoComplete={autocomplete ? "on" : "off"}
       />
     </div>

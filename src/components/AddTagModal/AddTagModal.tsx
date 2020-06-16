@@ -15,12 +15,12 @@ type Inputs = {
   color: Color
 }
 
-const AddTagModal: FC<{ parentTagId: Id }> = ({ parentTagId }) => {
+const AddTagModal: FC<{ id?: Id }> = ({ id }) => {
   const dispatch = useAppDispatch()
 
   const { register, handleSubmit } = useForm<Inputs>()
   const onSubmit = ({ name, color }: Inputs) => {
-    dispatch(addTag({ name, parentTagId, color }))
+    dispatch(addTag({ name, parentTagId: id, color }))
   }
 
   return (
@@ -37,10 +37,10 @@ const AddTagModal: FC<{ parentTagId: Id }> = ({ parentTagId }) => {
   )
 }
 
-export const useAddTagModal = (parentTagId: Id) => {
+export const useAddTagModal = (id?: Id) => {
   return useModal((props) => (
     <Modal aria-label="Add tag" tw="max-w-xs" {...props}>
-      <AddTagModal parentTagId={parentTagId} />
+      <AddTagModal id={id} />
     </Modal>
   ))
 }
