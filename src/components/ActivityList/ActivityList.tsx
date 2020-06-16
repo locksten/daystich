@@ -1,98 +1,168 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { Card } from "Card"
+import { Color, Id } from "common"
+import { useAddActivityModal } from "components/AddActivityModal"
 import { useAddTagModal } from "components/AddTagModal"
+import { Card } from "components/Card"
 import { Clickable } from "components/Clickable"
+import { useEditTagModal } from "components/EditTagModal"
 import { SecondaryButton } from "components/SecondaryButton"
+import {
+  selectActivityById,
+  selectDisplayActivityChildrenIds,
+  selectTopLevelDisplayActivityIds,
+} from "ducks/activity"
+import { rootActivityId } from "ducks/redux/common"
 import { useAppSelector } from "ducks/redux/rootReducer"
-import { selectTagById, selectTagChildrenIds, selectTags } from "ducks/tag"
-import { useAddTimeSpanNow } from "ducks/timeSpan"
-import { FC, Fragment } from "react"
+import { useAppDispatch } from "ducks/redux/store"
+import { selectTagById, selectTagChildrenIds, selectTagColor } from "ducks/tag"
+import { addTimeSpanNow } from "ducks/timeSpan"
+import { FC, Fragment, ReactNode } from "react"
 import "twin.macro"
 import tw from "twin.macro"
 
-export const ActivityList: FC<{ tagId: string }> = ({ tagId }) => {
-  const tagChildrenIds = useAppSelector((s) => selectTagChildrenIds(s, tagId))
-  const topLevel = useAppSelector(selectTags)
-    .filter((t) => t.displayAtTopLevel === true)
-    .map((t) => t.id)
-  const tagIds = [...tagChildrenIds, ...topLevel]
-
-  const { Modal, openModal } = useAddTagModal(tagId)
-
+const CardList: FC<{
+  ids: Id[]
+  RenderCard: FC<{ id: Id }>
+  openModal: () => void
+  RenderModal: FC<{}>
+}> = ({ ids, RenderCard, openModal, RenderModal }) => {
   return (
     <Fragment>
       <div tw="grid grid-cols-3 gap-4">
-        {tagIds.map((childId) => (
-          <div key={childId}>
-            <ActivityListCard tagId={childId} />
+        {ids.map((id) => (
+          <div key={id}>
+            <RenderCard id={id} />
           </div>
         ))}
         <SecondaryButton text="Add" onClick={openModal} />
       </div>
-      <Modal />
+      <RenderModal />
     </Fragment>
   )
 }
 
-const ActivityListCard: FC<{ tagId: string }> = ({ tagId }) => {
-  const tag = useAppSelector((s) => selectTagById(s, tagId))!
+export const TagCardList: FC<{ tagId: Id }> = ({ tagId }) => {
+  const ids = useAppSelector((s) => selectTagChildrenIds(s, tagId))
+  const { Modal, openModal } = useAddTagModal(tagId)
   return (
-    <Card css={{ backgroundColor: tag.color || "red" }}>
+    <CardList
+      RenderCard={TagListCard}
+      ids={ids}
+      openModal={openModal}
+      RenderModal={Modal}
+    />
+  )
+}
+
+export const ActivityCardList: FC<{}> = () => {
+  const ids = useAppSelector(selectTopLevelDisplayActivityIds)
+  const { Modal, openModal } = useAddActivityModal(rootActivityId)
+  return (
+    <CardList
+      RenderCard={ActivityListCard}
+      ids={ids}
+      openModal={openModal}
+      RenderModal={Modal}
+    />
+  )
+}
+
+// ================================================
+
+const ListCard: FC<{
+  RenderSingle: ReactNode
+  RenderList: ReactNode
+  color: Color
+}> = ({ RenderSingle, RenderList, color }) => {
+  return (
+    <Card css={{ backgroundColor: color }}>
       <div tw="leading-none pl-1 grid gap-1">
-        <SingleTag tagId={tagId} root={true} />
-        <TagList tagId={tagId} />
+        {RenderSingle}
+        {RenderList}
       </div>
     </Card>
   )
 }
 
-const TagList: FC<{ tagId: string }> = ({ tagId }) => {
-  // const tagChildrenIds = useAppSelector((s) => selectTagChildrenIds(s, tagId))
-  const tagChildrenIds = useAppSelector(selectTags)
-    .filter((t) => t.displayAtTopLevel !== true && t.parentTagId === tagId)
-    .map((t) => t.id)
+const TagListCard: FC<{ id: Id }> = ({ id }) => {
+  const color = useAppSelector((s) => selectTagColor(s, id))
   return (
-    <Fragment>
-      {tagChildrenIds.length !== 0 && (
-        <div tw="grid gap-1">
-          {tagChildrenIds.map((childId) => (
-            <div key={childId} tw="pl-3 grid gap-1">
-              <SingleTag tagId={childId} />
-              <TagList tagId={childId} />
-            </div>
-          ))}
-        </div>
-      )}
-    </Fragment>
+    <ListCard
+      RenderSingle={<SingleTag id={id} topLevel={true} />}
+      RenderList={<TagList id={id} />}
+      color={color}
+    />
   )
 }
 
-const SingleTag: FC<{ tagId: string; root?: boolean }> = ({
-  tagId,
-  root = false,
-}) => {
-  const tag = useAppSelector((s) => selectTagById(s, tagId))!
-  const addTimespanNow = useAddTimeSpanNow()
+const ActivityListCard: FC<{ id: Id }> = ({ id }) => {
+  const activity = useAppSelector((s) => selectActivityById(s, id))!
+  const tag = useAppSelector((s) => selectTagById(s, activity.id))!
+  const color = useAppSelector((s) => selectTagColor(s, tag.id))
 
-  const isLeaf =
-    useAppSelector((s) => selectTagChildrenIds(s, tagId)).length === 0
-  const isRoot = root || tag.displayAtTopLevel
-  const isMiddle = !isLeaf && !isRoot
+  return (
+    <ListCard
+      RenderSingle={<SingleActivity id={id} topLevel={true} />}
+      RenderList={<ActivityList id={id} />}
+      color={color}
+    />
+  )
+}
 
-  const { Modal, openModal } = useAddTagModal(tag.id)
+// ================================================
 
-  const TagName: FC<{}> = ({ children, ...props }) =>
+const List: FC<{
+  ids: Id[]
+  RenderList: FC<{ id: Id }>
+  RenderSingle: FC<{ id: Id }>
+}> = ({ ids, RenderList, RenderSingle }) => {
+  return (
+    <div tw="grid gap-1">
+      {ids.map((id) => (
+        <div key={id} tw="pl-3 grid gap-1">
+          <RenderSingle id={id} />
+          <RenderList id={id} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const TagList: FC<{ id: string }> = ({ id }) => {
+  const childrenTagIds = useAppSelector((s) => selectTagChildrenIds(s, id))
+  return (
+    <List
+      ids={childrenTagIds}
+      RenderSingle={({ id }) => <SingleTag id={id} />}
+      RenderList={({ id }) => <TagList id={id} />}
+    />
+  )
+}
+
+const ActivityList: FC<{ id: Id }> = ({ id }) => {
+  const ids = useAppSelector((s) => selectDisplayActivityChildrenIds(s, id))
+  return (
+    <List
+      ids={ids}
+      RenderSingle={({ id }) => <SingleActivity id={id} />}
+      RenderList={({ id }) => <ActivityList id={id} />}
+    />
+  )
+}
+
+// ================================================
+
+const Single: FC<{
+  name: string
+  isTopLevel: boolean
+  isLeaf: boolean
+  onNameClick: () => void
+  RenderSide: ReactNode
+}> = ({ isTopLevel, isLeaf, name, onNameClick, RenderSide }) => {
+  const Name: FC<{}> = ({ children, ...props }) =>
     isLeaf ? (
-      <Clickable
-        onClick={() =>
-          addTimespanNow({
-            mainTagId: tagId,
-            tagIds: [],
-          })
-        }
-        {...props}
-      >
+      <Clickable onClick={onNameClick} {...props}>
         {children}
       </Clickable>
     ) : (
@@ -101,39 +171,135 @@ const SingleTag: FC<{ tagId: string; root?: boolean }> = ({
       </div>
     )
 
-  const Side: FC<{}> = ({ children, ...props }) => (
-    <div tw="flex items-center px-1" {...props}>
-      {children}
-    </div>
-  )
+  const Side: FC<{}> = () => <div tw="flex items-center px-1">{RenderSide}</div>
 
   return (
     <Fragment>
       <div
         css={css`
           ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white active:text-white`};
-          ${isRoot && tw`text-xl font-extrabold`};
-          ${tw`text-lg font-semibold`};
-          ${isMiddle && tw``};
-          ${isLeaf &&
+          ${isTopLevel && tw`text-xl font-extrabold`};
+          ${!isTopLevel && !isLeaf && tw`text-lg font-semibold`};
+          ${!isTopLevel &&
+          isLeaf &&
           css`
+            ${tw`text-lg font-semibold`};
             &:hover {
               background-color: rgba(0, 0, 0, 0.05);
             }
           `};
         `}
       >
-        <TagName tw="flex-grow flex justify-between">{tag.name}</TagName>
-        <Side>
-          <Clickable
-            tw="text-transparent hover:text-white text-lg font-bold"
-            onClick={openModal}
-          >
-            +
-          </Clickable>
-        </Side>
+        <Name tw="flex-grow flex justify-between">{name}</Name>
+        <Side />
       </div>
-      <Modal />
     </Fragment>
   )
 }
+
+const SingleActivity: FC<{ id: Id; topLevel?: boolean }> = ({
+  id,
+  topLevel = false,
+}) => {
+  const activity = useAppSelector((s) => selectActivityById(s, id))!
+  const tag = useAppSelector((s) => selectTagById(s, activity.id))!
+  const isLeaf =
+    useAppSelector((s) => selectTagChildrenIds(s, tag.id)).length === 0
+
+  const dispatch = useAppDispatch()
+
+  const { Modal: AddModal, openModal: openAddModal } = useAddActivityModal(
+    tag.id,
+  )
+
+  const TopLevelNote: FC<{}> = () => {
+    const ParentTagName: FC<{ parentTagId: Id }> = ({ parentTagId }) => {
+      const parentTag = useAppSelector((s) => selectTagById(s, parentTagId))!
+      return <Fragment> ({parentTag.name})</Fragment>
+    }
+    return (
+      <Fragment>
+        {activity.displayAtTopLevel && (
+          <div tw="text-gray-400 text-xs font-light py-1">
+            TopLevel
+            {tag.parentTagId && <ParentTagName parentTagId={tag.parentTagId} />}
+          </div>
+        )}
+      </Fragment>
+    )
+  }
+
+  const Side = (
+    <Fragment>
+      <SideAddButton onClick={openAddModal} />
+    </Fragment>
+  )
+
+  return (
+    <Fragment>
+      <div>
+        <TopLevelNote />
+        <Single
+          isTopLevel={topLevel}
+          isLeaf={isLeaf}
+          name={tag.name}
+          onNameClick={() =>
+            dispatch(addTimeSpanNow({ activityId: tag.id, tagIds: [] }))
+          }
+          RenderSide={Side}
+        />
+      </div>
+      <AddModal />
+    </Fragment>
+  )
+}
+
+const SingleTag: FC<{ id: Id; topLevel?: boolean }> = ({
+  id: tagId,
+  topLevel = false,
+}) => {
+  const tag = useAppSelector((s) => selectTagById(s, tagId))!
+  const isLeaf =
+    useAppSelector((s) => selectTagChildrenIds(s, tagId)).length === 0
+
+  const { Modal: AddModal, openModal: openAddModal } = useAddTagModal(tag.id)
+  const { Modal: EditModal, openModal: openEditModal } = useEditTagModal(tag.id)
+
+  const Side = (
+    <Fragment>
+      <SideAddButton onClick={openAddModal} />
+      <SideEditButton onClick={openEditModal} />
+    </Fragment>
+  )
+
+  return (
+    <Fragment>
+      <Single
+        isTopLevel={topLevel}
+        isLeaf={isLeaf}
+        name={tag.name}
+        onNameClick={() => {}}
+        RenderSide={Side}
+      />
+      <AddModal />
+      <EditModal />
+    </Fragment>
+  )
+}
+
+const SideButton: FC<{ onClick: () => void }> = ({ onClick, children }) => (
+  <Clickable
+    tw="text-transparent hover:text-white text-lg font-bold"
+    onClick={onClick}
+  >
+    {children}
+  </Clickable>
+)
+
+const SideEditButton: FC<{ onClick: () => void }> = ({ onClick }) => (
+  <SideButton onClick={onClick}>e</SideButton>
+)
+
+const SideAddButton: FC<{ onClick: () => void }> = ({ onClick }) => (
+  <SideButton onClick={onClick}>+</SideButton>
+)

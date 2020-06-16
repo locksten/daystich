@@ -1,10 +1,10 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Card } from "Card"
 import { useIntervalState } from "common"
+import { Card } from "components/Card"
 import { formatDistanceToNowStrict } from "date-fns"
 import { useAppSelector } from "ducks/redux/rootReducer"
-import { selectTagById } from "ducks/tag"
+import { selectTagById, selectTagColor } from "ducks/tag"
 import { selectActiveTimespan, TimeSpan } from "ducks/timeSpan"
 import { FC } from "react"
 import "twin.macro"
@@ -29,14 +29,15 @@ export const ActiveTimeSpanNotExisting: FC<{}> = () => (
 )
 
 export const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
-  const mainTag = useAppSelector((s) => selectTagById(s, span.mainTagId))!
+  const activityTag = useAppSelector((s) => selectTagById(s, span.activityId))!
+  const color = useAppSelector((s) => selectTagColor(s, activityTag.id))
 
   return (
     <Card
       tw="max-w-xl w-full px-8 py-8 flex justify-between items-center text-white"
-      css={{ backgroundColor: mainTag.color }}
+      css={{ backgroundColor: color }}
     >
-      <div tw="font-semibold text-3xl">{mainTag.name}</div>
+      <div tw="font-semibold text-3xl">{activityTag.name}</div>
       <ActiveTimeSpanTime span={span} />
     </Card>
   )

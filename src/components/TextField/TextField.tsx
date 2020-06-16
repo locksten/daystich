@@ -3,14 +3,14 @@ import { jsx } from "@emotion/core"
 import "twin.macro"
 import { forwardRef } from "react"
 
-type InputProps = {
+type TextFieldProps = {
   name: string
   label: string
   autocomplete?: boolean
   type?: string
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
   ({ name, label, type = "text", autocomplete = false }, ref) => (
     <div tw="grid">
       <label tw="font-light text-sm" htmlFor={name}>

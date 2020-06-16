@@ -1,9 +1,9 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { nanoid } from "@reduxjs/toolkit"
-import { Card } from "Card"
+import { Card } from "components/Card"
 import { formatISOTime, Id } from "common"
-import { Input } from "components/Input"
+import { TextField } from "components/TextField"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { Table } from "components/Table"
@@ -17,7 +17,7 @@ import "twin.macro"
 import { useAppDispatch } from "ducks/redux/store"
 
 type Inputs = {
-  mainTagId: string
+  activityId: string
   tagIds: string
   startTime: string
 }
@@ -42,16 +42,16 @@ export const TimeSpanTable: FC<{}> = () => {
   const dispatch = useAppDispatch()
 
   const { register, handleSubmit, reset } = useForm<Inputs>()
-  const onSubmit = ({ mainTagId, startTime, tagIds }: Inputs) => {
+  const onSubmit = ({ activityId, startTime, tagIds }: Inputs) => {
     dispatch(
       addTimeSpan({
         id: nanoid(),
-        mainTagId,
+        activityId,
         startTime: startTime === "" ? Date.now() : Number(startTime),
         tagIds: tagIds.split(","),
       }),
     )
-    reset({ mainTagId, tagIds })
+    reset({ activityId, tagIds })
   }
 
   return (
@@ -60,7 +60,7 @@ export const TimeSpanTable: FC<{}> = () => {
         header={
           <tr>
             <th>Id</th>
-            <th>mainTag</th>
+            <th>activityTag</th>
             <th>tags</th>
             <th>startTime</th>
             <th>endTime</th>
@@ -72,7 +72,7 @@ export const TimeSpanTable: FC<{}> = () => {
           <tr key={ts.id}>
             <td>{ts.id.slice(18)}</td>
             <td>
-              <Tag id={ts.mainTagId} />
+              <Tag id={ts.activityId} />
             </td>
             <td>
               <Tags ids={ts.tagIds} />
@@ -86,14 +86,14 @@ export const TimeSpanTable: FC<{}> = () => {
         ))}
       </Table>
       <form onSubmit={handleSubmit(onSubmit)} tw="grid grid-flow-col gap-2">
-        <Input ref={register} name="mainTagId" label="mainTagId" />
-        <Input ref={register} name="tagIds" label="tagIds" />
-        <Input ref={register} name="startTime" label="startTime" />
+        <TextField ref={register} name="activityId" label="activityId" />
+        <TextField ref={register} name="tagIds" label="tagIds" />
+        <TextField ref={register} name="startTime" label="startTime" />
         <PrimaryButton text="Add" type="submitButton" />
       </form>
       <SecondaryButton
         text="Add test data"
-        onClick={() => dispatch(addTestTimeSpans(["mainTagId"]))}
+        onClick={() => dispatch(addTestTimeSpans(["activityId"]))}
       />
     </Card>
   )

@@ -1,11 +1,10 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { nanoid } from "@reduxjs/toolkit"
-import { Card } from "Card"
 import { Id } from "common"
-import { Input } from "components/Input"
+import { Card } from "components/Card"
 import { PrimaryButton } from "components/PrimaryButton"
 import { Table } from "components/Table"
+import { TextField } from "components/TextField"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { useAppDispatch } from "ducks/redux/store"
 import { addTag, selectTags } from "ducks/tag"
@@ -26,11 +25,8 @@ export const TagTable: FC<{}> = () => {
   const onSubmit = ({ name, parentTagId }: Inputs) => {
     dispatch(
       addTag({
-        id: nanoid(),
         name,
         parentTagId,
-        displayAtTopLevel: false,
-        color: "#ffffff",
       }),
     )
     reset({ parentTagId })
@@ -56,8 +52,8 @@ export const TagTable: FC<{}> = () => {
         ))}
       </Table>
       <form onSubmit={handleSubmit(onSubmit)} tw="grid grid-flow-col gap-2">
-        <Input ref={register} name="name" label="name" />
-        <Input ref={register} name="parentTagId" label="parentTagId" />
+        <TextField ref={register} name="name" label="name" />
+        <TextField ref={register} name="parentTagId" label="parentTagId" />
         <PrimaryButton text="Add" type="submitButton" />
       </form>
     </Card>

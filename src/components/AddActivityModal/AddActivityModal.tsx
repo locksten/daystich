@@ -1,26 +1,33 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
+import { Checkbox } from "components/Checkbox"
 import { Modal, useModal } from "components/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { TextField } from "components/TextField"
+import { addActivity } from "ducks/redux/common"
 import { useAppDispatch } from "ducks/redux/store"
-import { addTag } from "ducks/tag"
 import { FC } from "react"
 import { useForm } from "react-hook-form"
 import "twin.macro"
 
 type Inputs = {
   name: string
+  displayAtTopLevel: boolean
   color: Color
 }
 
-const AddTagModal: FC<{ parentTagId: Id }> = ({ parentTagId }) => {
+const AddActivityModal: FC<{ parentTagId?: Id }> = ({ parentTagId }) => {
   const dispatch = useAppDispatch()
 
   const { register, handleSubmit } = useForm<Inputs>()
-  const onSubmit = ({ name, color }: Inputs) => {
-    dispatch(addTag({ name, parentTagId, color }))
+  const onSubmit = ({ name, displayAtTopLevel, color }: Inputs) => {
+    dispatch(
+      addActivity({
+        activity: { displayAtTopLevel, tagIds: [] },
+        activityTag: { name, parentTagId, color },
+      }),
+    )
   }
 
   return (
@@ -30,6 +37,11 @@ const AddTagModal: FC<{ parentTagId: Id }> = ({ parentTagId }) => {
     >
       <TextField ref={register} name="name" label="Name" />
       <TextField ref={register} name="color" label="Color" />
+      <Checkbox
+        ref={register}
+        name="displayAtTopLevel"
+        label="Display at top level"
+      />
       <div tw="grid grid-flow-col gap-2">
         <PrimaryButton text="Add" type="submitButton" />
       </div>
@@ -37,10 +49,10 @@ const AddTagModal: FC<{ parentTagId: Id }> = ({ parentTagId }) => {
   )
 }
 
-export const useAddTagModal = (parentTagId: Id) => {
+export const useAddActivityModal = (parentTagId: Id) => {
   return useModal((props) => (
-    <Modal aria-label="Add tag" tw="max-w-xs" {...props}>
-      <AddTagModal parentTagId={parentTagId} />
+    <Modal aria-label="Add activity" tw="max-w-xs" {...props}>
+      <AddActivityModal parentTagId={parentTagId} />
     </Modal>
   ))
 }

@@ -1,4 +1,5 @@
 import {
+  createAction,
   createEntityAdapter,
   createSelector,
   createSlice,
@@ -6,12 +7,12 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit"
 import { Duration, Id, Timestamp } from "common"
+import { AppPrepareAction } from "ducks/redux/common"
 import { RootState } from "ducks/redux/rootReducer"
-import { useDispatch } from "react-redux"
 
 export type TimeSpan = {
   id: Id
-  mainTagId: Id
+  activityId: Id
   tagIds: Id[]
   startTime: Timestamp
   endTime?: Timestamp
@@ -23,26 +24,29 @@ const adapter = createEntityAdapter<TimeSpan>({
     a === b ? 0 : a < b ? 1 : -1,
 })
 
-const selecTimeSpanState = (state: RootState) => state.timeSpans
+const selecTimeSpanState = (state: RootState) => state.timeSpan
 
 const selectors = adapter.getSelectors(selecTimeSpanState)
 
 const timeSpanDuration = (span: TimeSpan) =>
   span.endTime && span.endTime - span.startTime + 1
 
-const timeSpansSlice = createSlice({
+const timeSpanSlice = createSlice({
   name: "timeSpan",
   initialState: adapter.getInitialState(),
   reducers: {
-    addTestTimeSpans: (state, { payload: mainTagIds }: PayloadAction<Id[]>) => {
+    addTestTimeSpans: (
+      state,
+      { payload: activityIds }: PayloadAction<Id[]>,
+    ) => {
       const start = 1000
       for (let i = start + 2000; i < start + 2100; i += 9) {
-        const mainTagId = mainTagIds[i % mainTagIds.length]
+        const activityId = activityIds[i % activityIds.length]
         const newSpanId = String(i)
         adapter.addOne(state, {
           id: newSpanId,
           startTime: Number(newSpanId),
-          mainTagId,
+          activityId: activityId,
           duration: 9,
           endTime: i + 8,
           tagIds: [],
@@ -53,24 +57,24 @@ const timeSpansSlice = createSlice({
     addTimeSpan: (
       state,
       {
-        payload: { id: newSpanId, startTime: newStartTime, mainTagId, tagIds },
+        payload: { id, startTime, activityId, tagIds },
       }: PayloadAction<
-        Pick<TimeSpan, "id" | "startTime" | "mainTagId" | "tagIds">
+        Pick<TimeSpan, "id" | "startTime" | "activityId" | "tagIds">
       >,
     ) => {
       const spans = adapter.getSelectors().selectAll(state)
 
-      const spanBefore = spans.find((x) => x && x.startTime < newStartTime)
+      const spanBefore = spans.find((x) => x && x.startTime < startTime)
       const spanAfter = spans
         .slice()
         .reverse()
-        .find((x) => x && x.startTime > newStartTime)
+        .find((x) => x && x.startTime > startTime)
 
       const newSpan: TimeSpan = {
-        id: newSpanId,
-        startTime: newStartTime,
+        id,
+        startTime,
         endTime: spanAfter && spanAfter.startTime - 1,
-        mainTagId,
+        activityId,
         tagIds,
       }
       newSpan.duration = timeSpanDuration(newSpan)
@@ -83,31 +87,32 @@ const timeSpansSlice = createSlice({
     },
   },
 })
+export const timeSpanReducer = timeSpanSlice.reducer
 
-export const selectActiveTimespan = createSelector(
-  selectors.selectIds,
-  selectors.selectEntities,
-  (timeSpanIds, timeSpans) => timeSpans[timeSpanIds[0]],
-)
+export const { addTimeSpan, addTestTimeSpans } = { ...timeSpanSlice.actions }
+
+export const addTimeSpanNow = createAction<
+  AppPrepareAction<Pick<TimeSpan, "activityId" | "tagIds">, TimeSpan>
+>(addTimeSpan.type, ({ activityId, tagIds }) => {
+  return {
+    payload: {
+      id: nanoid(),
+      activityId,
+      startTime: Date.now(),
+      tagIds: tagIds,
+    },
+  }
+})
 
 export const {
-  addTimeSpan,
-  addTestTimeSpans,
   selectAll: selectTimespans,
+  selectEntities: selectTimeSpanDictionary,
   selectById: selectTimespanById,
-} = { ...timeSpansSlice.actions, ...selectors }
-
-export const useAddTimeSpanNow = () => {
-  const dispatch = useDispatch()
-  return (span: Pick<TimeSpan, "mainTagId" | "tagIds">) =>
-    dispatch(
-      addTimeSpan({
-        id: nanoid(),
-        mainTagId: span.mainTagId,
-        startTime: Date.now(),
-        tagIds: span.tagIds,
-      }),
-    )
+} = {
+  ...selectors,
 }
 
-export default timeSpansSlice.reducer
+export const selectActiveTimespan = createSelector(
+  selectTimespans,
+  (spans) => spans[0],
+)

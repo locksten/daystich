@@ -1,9 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit"
-import tagReducer from "ducks/tag"
-import timeSpansReducer from "ducks/timeSpan"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 import { persistReducer } from "redux-persist"
 import storage from "redux-persist/lib/storage"
+import { activityReducer } from "ducks/activity"
+import { tagReducer } from "ducks/tag"
+import { timeSpanReducer } from "ducks/timeSpan"
 
 export const persistConfig = {
   key: "root",
@@ -13,8 +14,9 @@ export const persistConfig = {
 const rootReducer = persistReducer(
   persistConfig,
   combineReducers({
-    timeSpans: timeSpansReducer,
+    timeSpan: timeSpanReducer,
     tag: tagReducer,
+    activity: activityReducer,
   }),
 )
 
