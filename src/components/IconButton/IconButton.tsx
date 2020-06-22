@@ -1,24 +1,39 @@
 /** @jsx jsx */
-import { jsx } from "@emotion/core"
+import { jsx, css } from "@emotion/core"
 import { Clickable, ClickableProps } from "components/Clickable"
-import { FC, ReactElement } from "react"
-import { FaRegStar, FaStar } from "react-icons/fa"
+import { FC } from "react"
+import { FaRegStar, FaStar, FaPlus } from "react-icons/fa"
+import { MdEdit } from "react-icons/md"
 import "twin.macro"
+import tw from "twin.macro"
 
-export type IconName = "solidStar" | "emptyStar"
+export type IconName = keyof typeof Icons
 
-export const NameToIcon: { [key in IconName]: ReactElement } = {
+export const Icons = {
   solidStar: <FaStar />,
   emptyStar: <FaRegStar />,
+  add: <FaPlus />,
+  edit: <MdEdit />,
 }
 
-type IconButtonProps = ClickableProps & { icon: IconName }
+type IconButtonProps = ClickableProps & {
+  icon: IconName
+  background?: "circle" | "none"
+}
 
-export const IconButton: FC<IconButtonProps> = ({ icon, ...props }) => (
+export const IconButton: FC<IconButtonProps> = ({
+  icon,
+  background = "none",
+  ...props
+}) => (
   <Clickable
-    tw="p-2 rounded-full border bg-gray-100 hover:bg-gray-200"
+    css={css`
+      ${tw`flex justify-center items-center`}
+      ${background === "circle" &&
+      tw`p-2 rounded-full text-white bg-gray-400 hover:bg-gray-500`}
+    `}
     {...props}
   >
-    <div tw="flex justify-center items-center">{NameToIcon[icon]}</div>
+    {Icons[icon]}
   </Clickable>
 )

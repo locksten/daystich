@@ -7,8 +7,8 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit"
 import { Duration, Id, Timestamp } from "common"
-import { AppPrepareAction } from "ducks/redux/common"
 import { RootState } from "ducks/redux/rootReducer"
+import { AppPrepareAction } from "ducks/actions"
 
 export type TimeSpan = {
   id: Id
@@ -53,7 +53,6 @@ const timeSpanSlice = createSlice({
         })
       }
     },
-
     addTimeSpan: (
       state,
       {
@@ -85,21 +84,34 @@ const timeSpanSlice = createSlice({
         spanBefore.duration = timeSpanDuration(spanBefore)
       }
     },
+    updateTimespan(
+      state,
+      {
+        payload: span,
+      }: PayloadAction<
+        Pick<TimeSpan, "id"> & Partial<Pick<TimeSpan, "tagIds">>
+      >,
+    ) {
+      adapter.updateOne(state, { id: span.id, changes: span })
+    },
   },
 })
+
 export const timeSpanReducer = timeSpanSlice.reducer
 
-export const { addTimeSpan, addTestTimeSpans } = { ...timeSpanSlice.actions }
+export const { addTimeSpan, updateTimespan, addTestTimeSpans } = {
+  ...timeSpanSlice.actions,
+}
 
 export const addTimeSpanNow = createAction<
-  AppPrepareAction<Pick<TimeSpan, "activityId" | "tagIds">, TimeSpan>
->(addTimeSpan.type, ({ activityId, tagIds }) => {
+  AppPrepareAction<Pick<TimeSpan, "activityId">, TimeSpan>
+>(addTimeSpan.type, ({ activityId }) => {
   return {
     payload: {
       id: nanoid(),
       activityId,
       startTime: Date.now(),
-      tagIds: tagIds,
+      tagIds: [],
     },
   }
 })

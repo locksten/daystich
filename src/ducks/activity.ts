@@ -4,24 +4,14 @@ import {
   createSlice,
 } from "@reduxjs/toolkit"
 import { Id } from "common"
-import {
-  addActivity,
-  removeActivity,
-  rootActivity,
-  rootActivityId,
-  updateActivity,
-} from "ducks/redux/common"
+import { isRootActivityId, rootActivity } from "ducks/common"
 import { RootState } from "ducks/redux/rootReducer"
-import {
-  getTagChildrenIdsFromTagDictionary,
-  selectTagDictionary,
-} from "ducks/tag"
-import createCachedSelector from "re-reselect"
+import { selectTags, isActivity, selectTagDictionary } from "ducks/tag"
+import { addActivity, updateActivity, removeActivity } from "ducks/actions"
 
 export type Activity = {
   id: Id
   tagIds: Id[]
-  displayAtTopLevel: boolean
 }
 
 const selectActivityState = (state: RootState) => state.activity
@@ -64,30 +54,15 @@ export const {
 }
 
 export const selectTopLevelDisplayActivityIds = createSelector(
-  selectActivityDictionary,
   selectTagDictionary,
-  (activities, tags) => {
-    const children = getTagChildrenIdsFromTagDictionary(tags, rootActivityId)
-    return Object.values(activities)
+  selectTags,
+  (tagDict, tags) => {
+    return tags
       .filter(
-        (activity) =>
-          activity!.displayAtTopLevel || children.includes(activity!.id),
+        (tag) =>
+          (isActivity(tagDict, tag.id) && tag.displayAtTopLevel) ||
+          isRootActivityId(tag?.parentTagId),
       )
-      .map((activity) => activity!.id)
+      .map((tag) => tag.id)
   },
 )
-
-export const selectDisplayActivityChildrenIds = createCachedSelector(
-  selectActivityDictionary,
-  selectTagDictionary,
-  (_: RootState, id: Id) => id,
-  (activities, tags, id) => {
-    const children = getTagChildrenIdsFromTagDictionary(tags, id)
-    return Object.values(activities)
-      .filter(
-        (activity) =>
-          !activity!.displayAtTopLevel && children.includes(activity!.id),
-      )
-      .map((activity) => activity!.id)
-  },
-)((_: RootState, id) => id)

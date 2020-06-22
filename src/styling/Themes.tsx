@@ -1,4 +1,6 @@
+/** @jsx jsx */
 import { css } from "@emotion/core"
+import "twin.macro"
 import tw from "twin.macro"
 
 export const globalStyle = css`

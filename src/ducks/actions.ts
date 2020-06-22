@@ -29,8 +29,8 @@ export const addActivity = createAction<
 
 export type ActivtyChangesType = {
   id: Id
-  activity: Partial<Pick<Activity, "displayAtTopLevel" | "tagIds">>
-  activityTag: Partial<Pick<Tag, "name" | "color">>
+  activity: Partial<Pick<Activity, "tagIds">>
+  activityTag: Partial<Pick<Tag, "name" | "displayAtTopLevel" | "color">>
 }
 
 export const updateActivity = createAction<ActivtyChangesType>(
@@ -40,19 +40,3 @@ export const updateActivity = createAction<ActivtyChangesType>(
 export const removeActivity = createAction<Pick<Activity, "id">>(
   "activity/removeActivity",
 )
-
-export const defaultTagColor = "#4A5568"
-
-export const rootActivityId = "rootActivityId-xiftrK"
-
-export const rootActivityTag: Tag = {
-  id: rootActivityId,
-  name: "Activity",
-  color: "#4A5568",
-}
-
-export const rootActivity: Activity = {
-  id: rootActivityId,
-  tagIds: [],
-  displayAtTopLevel: false,
-}

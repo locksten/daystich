@@ -48,7 +48,7 @@ export const TimeSpanTable: FC<{}> = () => {
         id: nanoid(),
         activityId,
         startTime: startTime === "" ? Date.now() : Number(startTime),
-        tagIds: tagIds.split(","),
+        tagIds: [],
       }),
     )
     reset({ activityId, tagIds })

@@ -8,22 +8,28 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit"
 import { Color, Id } from "common"
+import { Activity } from "ducks/activity"
 import {
-  addActivity,
-  AppPrepareAction,
   defaultTagColor,
-  removeActivity,
+  isRootActivity,
+  isRootActivityId,
   rootActivityTag,
-  updateActivity,
-} from "ducks/redux/common"
+} from "ducks/common"
 import { RootState } from "ducks/redux/rootReducer"
 import createCachedSelector from "re-reselect"
+import {
+  addActivity,
+  updateActivity,
+  removeActivity,
+  AppPrepareAction,
+} from "ducks/actions"
 
 export type Tag = {
   id: Id
   parentTagId?: Id
   name: string
   color?: Color
+  displayAtTopLevel: boolean
 }
 
 const selectTagState = (state: RootState) => state.tag
@@ -91,36 +97,57 @@ export const {
   ...selectors,
 }
 
-export const selectRootTagIds = createSelector(selectTagDictionary, (tags) =>
-  Object.values(tags)
-    .filter((tag) => !tag?.parentTagId)
-    .map((tag) => tag!.id),
+export const isRootTag = (tag: Tag) => !tag?.parentTagId
+
+export const isNonActivityRootTag = (tag: Tag) =>
+  isRootTag(tag) && !isRootActivity(tag)
+
+export const selectRootTagIds = createSelector(selectTags, (tags) =>
+  tags.filter(isRootTag).map((tag) => tag.id),
 )
+
+export const selectNonActivityRootTagIds = createSelector(selectTags, (tags) =>
+  tags.filter(isNonActivityRootTag).map((tag) => tag.id),
+)
+
+export const getRootTagId = (tags: Dictionary<Tag>, id: Id) => {
+  const findRootTag = (id: Id): Id => {
+    const parentId = tags[id]?.parentTagId
+    return parentId ? findRootTag(parentId) : id
+  }
+  return findRootTag(id)
+}
+
+export const selectTagIdPath = createCachedSelector(
+  selectTagDictionary,
+  (_: RootState, id: Id) => id,
+  (tags, id) => {
+    const path = [id]
+    const getParentId = (id: Id) => {
+      const parentId = tags[id]?.parentTagId
+      if (parentId) {
+        path.push(parentId)
+        getParentId(parentId)
+      }
+    }
+    getParentId(id)
+    return path
+  },
+)((_: RootState, id) => id)
 
 export const selectRootTagId = createCachedSelector(
   selectTagDictionary,
   (_: RootState, id: Id) => id,
-  (tags, id): Id => {
-    const findRootTag = (id: Id): Id => {
-      const parentId = tags[id]?.parentTagId
-      return parentId ? findRootTag(parentId) : id
-    }
-    return findRootTag(id)
-  },
+  getRootTagId,
 )((_: RootState, id) => id)
 
-export const getTagChildrenIdsFromTagDictionary = (
-  tags: Dictionary<Tag>,
-  id: Id,
-) =>
-  Object.values(tags)
-    .filter((tag) => tag?.parentTagId === id)
-    .map((tag) => tag!.id)
+export const getTagChildrenIds = (tags: Tag[], id: Id) =>
+  tags.filter((tag) => tag?.parentTagId === id).map((tag) => tag.id)
 
 export const selectTagChildrenIds = createCachedSelector(
-  selectTagDictionary,
+  selectTags,
   (_: RootState, id: Id) => id,
-  getTagChildrenIdsFromTagDictionary,
+  getTagChildrenIds,
 )((_: RootState, id) => id)
 
 export const selectTagColor = createCachedSelector(
@@ -140,3 +167,51 @@ export const selectTagColor = createCachedSelector(
     return findTagColor(id)
   },
 )((_: RootState, id) => id)
+
+export const isActivity = (tagDictionary: Dictionary<Tag>, id: Id) =>
+  isRootActivityId(getRootTagId(tagDictionary, id))
+
+export const selectTopLevelDisplayTagIds = createSelector(
+  selectTagDictionary,
+  (tags) =>
+    Object.values(tags)
+      .filter(
+        (tag) =>
+          !isActivity(tags, tag!.id) &&
+          (tag!.displayAtTopLevel || isRootTag(tag!)),
+      )
+      .map((tag) => tag!.id),
+)
+
+export const getDisplayTagChildrenIds = (tags: Tag[], id: Id) => {
+  return tags
+    .filter((tag) => !tag.displayAtTopLevel && tag?.parentTagId === id)
+    .map((tag) => tag.id)
+}
+
+export type TreeNode = { activity?: Activity; tag: Tag; children: TreeNode[] }
+
+export const getDisplayTagTreeList = (
+  tags: Tag[],
+  tagDict: Dictionary<Tag>,
+  activityDict: Dictionary<Activity>,
+  rootId: Id,
+) => {
+  const topLevel: TreeNode[] = []
+  const getChildren = (tag: Tag): TreeNode => {
+    const children = getTagChildrenIds(tags, tag.id)
+      .map((id) => tagDict[id]!)
+      .filter((c) =>
+        c.displayAtTopLevel ? topLevel.push(getChildren(c)) && false : true,
+      )
+    return {
+      tag,
+      activity: activityDict[tag.id],
+      children: children.map((c) => getChildren(c)),
+    }
+  }
+
+  const children = getChildren(tagDict[rootId]!)
+
+  return [...topLevel, children]
+}

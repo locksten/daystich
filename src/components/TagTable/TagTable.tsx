@@ -2,14 +2,10 @@
 import { jsx } from "@emotion/core"
 import { Id } from "common"
 import { Card } from "components/Card"
-import { PrimaryButton } from "components/PrimaryButton"
 import { Table } from "components/Table"
-import { TextField } from "components/TextField"
 import { useAppSelector } from "ducks/redux/rootReducer"
-import { useAppDispatch } from "ducks/redux/store"
-import { addTag, selectTags } from "ducks/tag"
+import { selectTags } from "ducks/tag"
 import { FC } from "react"
-import { useForm } from "react-hook-form"
 import "twin.macro"
 
 type Inputs = {
@@ -19,18 +15,6 @@ type Inputs = {
 
 export const TagTable: FC<{}> = () => {
   const tags = useAppSelector(selectTags)
-  const dispatch = useAppDispatch()
-
-  const { register, handleSubmit, reset } = useForm<Inputs>()
-  const onSubmit = ({ name, parentTagId }: Inputs) => {
-    dispatch(
-      addTag({
-        name,
-        parentTagId,
-      }),
-    )
-    reset({ parentTagId })
-  }
 
   return (
     <Card tw="grid gap-2">
@@ -51,11 +35,6 @@ export const TagTable: FC<{}> = () => {
           </tr>
         ))}
       </Table>
-      <form onSubmit={handleSubmit(onSubmit)} tw="grid grid-flow-col gap-2">
-        <TextField ref={register} name="name" label="name" />
-        <TextField ref={register} name="parentTagId" label="parentTagId" />
-        <PrimaryButton text="Add" type="submitButton" />
-      </form>
     </Card>
   )
 }

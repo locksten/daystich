@@ -18,9 +18,9 @@ export const App: FC = () => {
     <ReduxProvider store={store}>
       <PersistGate loading={"loading..."} persistor={persistor}>
         <div tw="grid gap-8 p-8">
+          <Global styles={globalStyle} />
           <ActiveTimeSpan />
           <ActivitySection />
-          <Global styles={globalStyle} />
           <TagTable />
           <TimeSpanTable />
           <SecondaryButton

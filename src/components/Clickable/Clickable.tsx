@@ -27,7 +27,7 @@ export const Clickable: FC<ClickableProps> = ({
     </a>
   ) : (
     <button
-      onClick={(e) => onClick?.(e) /* +route */}
+      onClick={(e) => onClick?.(e)}
       type={
         type === "submitButton"
           ? "submit"
