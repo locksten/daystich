@@ -37,6 +37,6 @@ export const updateActivity = createAction<ActivtyChangesType>(
   "activity/updateActivity",
 )
 
-export const removeActivity = createAction<Pick<Activity, "id">>(
-  "activity/removeActivity",
-)
+export const removeActivity = createAction<
+  Pick<Activity, "id"> & { affectedTimeSpanIds: Id[]; replacementId?: Id }
+>("activity/removeActivity")

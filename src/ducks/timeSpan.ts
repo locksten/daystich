@@ -8,7 +8,8 @@ import {
 } from "@reduxjs/toolkit"
 import { Duration, Id, Timestamp } from "common"
 import { RootState } from "ducks/redux/rootReducer"
-import { AppPrepareAction } from "ducks/actions"
+import { AppPrepareAction, removeActivity } from "ducks/actions"
+import createCachedSelector from "re-reselect"
 
 export type TimeSpan = {
   id: Id
@@ -95,6 +96,21 @@ const timeSpanSlice = createSlice({
       adapter.updateOne(state, { id: span.id, changes: span })
     },
   },
+
+  extraReducers: (builder) => {
+    builder.addCase(
+      removeActivity,
+      (state, { payload: { affectedTimeSpanIds, replacementId } }) => {
+        adapter.updateMany(
+          state,
+          affectedTimeSpanIds.map((id) => ({
+            id,
+            changes: { activityId: replacementId },
+          })),
+        )
+      },
+    )
+  },
 })
 
 export const timeSpanReducer = timeSpanSlice.reducer
@@ -128,3 +144,21 @@ export const selectActiveTimespan = createSelector(
   selectTimespans,
   (spans) => spans[0],
 )
+
+const getTimespanIdsByActivityId = (spans: TimeSpan[], id: Id) =>
+  spans.filter((span) => span.activityId === id).map((s) => s.id)
+
+export const selectTimespanIdsByActivityId = createCachedSelector(
+  selectTimespans,
+  (_: RootState, id: Id) => id,
+  getTimespanIdsByActivityId,
+)((_: RootState, id) => id)
+
+const getTimespanIdsByActivityIds = (spans: TimeSpan[], ids: Id[]) =>
+  spans.filter((span) => ids.includes(span.activityId)).map((s) => s.id)
+
+export const selectTimespanIdsByActivityIds = createCachedSelector(
+  selectTimespans,
+  (_: RootState, ids: Id[]) => ids,
+  getTimespanIdsByActivityIds,
+)((_: RootState, ids) => ids.reduce((a, b) => a + b, ""))

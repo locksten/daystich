@@ -48,7 +48,7 @@ export const useModal = <T extends {}>(
                     `
                   : css`
                       margin: auto;
-                      height: calc(100vh - 10vw);
+                      max-height: calc(100vh - 10vw);
                     `};
               `}
             >

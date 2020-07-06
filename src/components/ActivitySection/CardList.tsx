@@ -88,7 +88,7 @@ export const TagCardList: FC<{
 export const ActivityCardList: FC<{
   config?: CardListConfig
   singleConfig?: SingleConfig
-}> = ({ config, singleConfig }) => {
+}> = ({ config, singleConfig, ...props }) => {
   const dispatch = useAppDispatch()
 
   const { editMode } = useEditMode()
@@ -114,6 +114,7 @@ export const ActivityCardList: FC<{
       nodes={nodes}
       config={config ?? {}}
       singleConfig={{ ...defaultSingleConfig, ...singleConfig }}
+      {...props}
     />
   )
 }

@@ -1,20 +1,20 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { nanoid } from "@reduxjs/toolkit"
-import { Card } from "components/Card"
 import { formatISOTime, Id } from "common"
-import { TextField } from "components/TextField"
+import { Card } from "components/Card"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { Table } from "components/Table"
+import { TextField } from "components/TextField"
 import { formatDistanceStrict } from "date-fns"
 import { useAppSelector } from "ducks/redux/rootReducer"
+import { useAppDispatch } from "ducks/redux/store"
 import { selectTagById } from "ducks/tag"
 import { addTestTimeSpans, addTimeSpan, selectTimespans } from "ducks/timeSpan"
 import { FC, Fragment } from "react"
 import { useForm } from "react-hook-form"
 import "twin.macro"
-import { useAppDispatch } from "ducks/redux/store"
 
 type Inputs = {
   activityId: string
@@ -22,12 +22,16 @@ type Inputs = {
   startTime: string
 }
 
-const Tag: FC<{ id: Id }> = ({ id }) => {
+const Activity: FC<{ id: Id }> = ({ id }) => {
   const tag = useAppSelector((s) => selectTagById(s, id))
-  return <Fragment>:{tag?.name}</Fragment>
+  return <Fragment>{tag?.name}</Fragment>
 }
 
 const Tags: FC<{ ids: Id[] }> = ({ ids }) => {
+  const Tag: FC<{ id: Id }> = ({ id }) => {
+    const tag = useAppSelector((s) => selectTagById(s, id))
+    return <Fragment>:{tag?.name}</Fragment>
+  }
   return (
     <Fragment>
       {ids.map((id) => {
@@ -60,7 +64,7 @@ export const TimeSpanTable: FC<{}> = () => {
         header={
           <tr>
             <th>Id</th>
-            <th>activityTag</th>
+            <th>activity</th>
             <th>tags</th>
             <th>startTime</th>
             <th>endTime</th>
@@ -72,7 +76,7 @@ export const TimeSpanTable: FC<{}> = () => {
           <tr key={ts.id}>
             <td>{ts.id.slice(18)}</td>
             <td>
-              <Tag id={ts.activityId} />
+              <Activity id={ts.activityId} />
             </td>
             <td>
               <Tags ids={ts.tagIds} />

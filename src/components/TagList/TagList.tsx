@@ -2,11 +2,11 @@
 import { css, jsx } from "@emotion/core"
 import { Id } from "common"
 import { IconButton } from "components/IconButton"
-import { useTagSelectModal } from "components/modals/TagSelectModal"
 import { TagChip } from "components/TagChip"
 import { FC, Fragment } from "react"
 import "twin.macro"
 import tw from "twin.macro"
+import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 
 export const TagList: FC<{
   value?: Id[]
@@ -14,7 +14,8 @@ export const TagList: FC<{
   showAddButton?: "onGroupHover" | "always"
   wrap: boolean
 }> = ({ value: ids = [], onChange, showAddButton = "always", wrap }) => {
-  const tagSelectModal = useTagSelectModal()({
+  const tagSelectModal = useCardListSelectModal()({
+    type: "tag",
     onClick: (tag) => {
       onChange?.(ids.includes(tag.id) ? ids : [...ids, tag.id])
     },

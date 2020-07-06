@@ -215,3 +215,20 @@ export const getDisplayTagTreeList = (
 
   return [...topLevel, children]
 }
+
+export const getTagDescendantIds = (tags: Tag[], id: Id) => {
+  const descendantIds: Id[] = []
+  const getChildren = (id: Id) => {
+    const childrenIds = getTagChildrenIds(tags, id)
+    descendantIds.push(...childrenIds)
+    childrenIds.map((id) => getChildren(id))
+  }
+  getChildren(id)
+  return descendantIds
+}
+
+export const selectTagDescendantIds = createCachedSelector(
+  selectTags,
+  (_: RootState, id: Id) => id,
+  getTagDescendantIds,
+)((_: RootState, id) => id)

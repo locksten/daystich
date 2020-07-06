@@ -2,19 +2,21 @@
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
 import { Checkbox } from "components/Checkbox"
+import { useCardListSelectModal } from "components/modals/CardListSelectModal"
+import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { TagList } from "components/TagList"
 import { TextField } from "components/TextField"
+import { removeActivity, updateActivity } from "ducks/actions"
 import { selectActivityById } from "ducks/activity"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { useAppDispatch } from "ducks/redux/store"
-import { selectTagById } from "ducks/tag"
+import { selectTagById, selectTagDescendantIds } from "ducks/tag"
+import { selectTimespanIdsByActivityIds } from "ducks/timeSpan"
 import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
-import { FormModal } from "components/modals/FormModal"
-import { updateActivity, removeActivity } from "ducks/actions"
 
 type Inputs = {
   name: string
@@ -48,6 +50,8 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
     )
   }
 
+  const { RemoveActivityModal, onRemoveActivityClick } = useRemoveActivity(id)
+
   return (
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register} name="name" label="Name" />
@@ -68,11 +72,47 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
       <SecondaryButton
         tw="text-red-600"
         text="Delete"
-        onClick={() => dispatch(removeActivity({ id }))}
+        onClick={onRemoveActivityClick}
       />
       <PrimaryButton text="Save" type="submitButton" />
+      <RemoveActivityModal />
     </FormModal>
   )
+}
+
+const useRemoveActivity = (id: Id) => {
+  const dispatch = useAppDispatch()
+
+  const activityIds = [
+    id,
+    ...useAppSelector((s) => selectTagDescendantIds(s, id)),
+  ]
+
+  const timeSpanIds = useAppSelector((s) =>
+    selectTimespanIdsByActivityIds(s, activityIds),
+  )
+
+  const n = timeSpanIds.length
+  const activitySelectModal = useCardListSelectModal()({
+    type: "activity",
+    title: `Select replacement for ${n} timespan${n === 1 ? "" : "s"}`,
+    onClick: (replacement) =>
+      dispatch(
+        removeActivity({
+          id,
+          affectedTimeSpanIds: timeSpanIds,
+          replacementId: replacement.id,
+        }),
+      ),
+  })
+
+  return {
+    RemoveActivityModal: activitySelectModal.Modal,
+    onRemoveActivityClick: () =>
+      timeSpanIds.length === 0
+        ? dispatch(removeActivity({ id, affectedTimeSpanIds: [] }))
+        : activitySelectModal.open(),
+  }
 }
 
 export const useEditActivityModal = () =>
