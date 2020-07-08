@@ -2,14 +2,14 @@
 import { jsx } from "@emotion/core"
 import { Card } from "components/Card"
 import { TagList } from "components/TagList"
-import { formatDistanceToNowStrict } from "date-fns"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { useAppDispatch } from "ducks/redux/store"
 import { selectTagById, selectTagColor } from "ducks/tag"
 import { selectActiveTimespan, TimeSpan, updateTimespan } from "ducks/timeSpan"
+import { useIntervalState } from "hooks/useIntervalState"
 import { FC } from "react"
 import "twin.macro"
-import { useIntervalState } from "hooks/useIntervalState"
+import humanizeDuration from "humanize-duration"
 
 export const ActiveTimeSpan: FC<{}> = () => {
   const timeSpan = useAppSelector(selectActiveTimespan)
@@ -62,7 +62,11 @@ export const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
 
 const ActiveTimeSpanTime: FC<{ span: TimeSpan }> = ({ span }) => {
   const time = useIntervalState(() =>
-    formatDistanceToNowStrict(span.startTime, { unit: "second" }),
+    humanizeDuration(Date.now() - span.startTime, {
+      units: ["h", "m"],
+      delimiter: " ",
+      round: true,
+    }),
   )
   return <div tw="font-light text-2xl whitespace-no-wrap">{time}</div>
 }

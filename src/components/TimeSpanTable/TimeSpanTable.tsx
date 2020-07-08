@@ -1,13 +1,12 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { nanoid } from "@reduxjs/toolkit"
-import { formatISOTime, Id } from "common"
+import { formatTime, Id, shortHumanizer } from "common"
 import { Card } from "components/Card"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { Table } from "components/Table"
 import { TextField } from "components/TextField"
-import { formatDistanceStrict } from "date-fns"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { useAppDispatch } from "ducks/redux/store"
 import { selectTagById } from "ducks/tag"
@@ -81,11 +80,9 @@ export const TimeSpanTable: FC<{}> = () => {
             <td>
               <Tags ids={ts.tagIds} />
             </td>
-            <td>{formatISOTime(ts.startTime)}</td>
-            <td>{ts.endTime && formatISOTime(ts.endTime)}</td>
-            <td>
-              {ts.endTime && formatDistanceStrict(ts.startTime, ts.endTime)}
-            </td>
+            <td>{formatTime(ts.startTime)}</td>
+            <td>{ts.endTime && formatTime(ts.endTime)}</td>
+            <td>{ts.endTime && shortHumanizer(ts.endTime - ts.startTime)}</td>
           </tr>
         ))}
       </Table>
