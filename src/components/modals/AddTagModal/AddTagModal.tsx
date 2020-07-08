@@ -8,8 +8,8 @@ import { PrimaryButton } from "components/PrimaryButton"
 import { TextField } from "components/TextField"
 import { addTag } from "ducks/actions"
 import { useAppDispatch } from "ducks/redux/store"
-import { useForm } from "react-hook-form"
 import { useSelectTagUsages } from "ducks/tag"
+import { useForm } from "react-hook-form"
 
 type Inputs = {
   name: string

@@ -31,11 +31,15 @@ export type Tag = {
   name: string
   color?: Color
   displayAtTopLevel: boolean
+  ordering: number
 }
 
-const selectTagState = (state: RootState) => state.tag
+export const selectTagState = (state: RootState) => state.tag
 
-const adapter = createEntityAdapter<Tag>()
+const adapter = createEntityAdapter<Tag>({
+  sortComparer: (a, b) => a.ordering - b.ordering,
+})
+export const tagAdapter = adapter
 
 const selectors = adapter.getSelectors(selectTagState)
 
@@ -83,11 +87,21 @@ const tagSlice = createSlice({
   },
 })
 
+const getOrderingForNewChild = (state: EntityState<Tag>, id?: Id) => {
+  const tags = id
+    ? getDisplayTagChildren(state, id)
+    : getTopLevelDisplayTags(state)
+  return tags.length === 0
+    ? 0
+    : tags.sort((a, b) => a.ordering - b.ordering)[tags.length - 1].ordering + 1
+}
+
 const addTagOrActivity = (
   state: EntityState<Tag>,
-  tag: Tag,
+  tag: Omit<Tag, "ordering">,
   newParentId?: Id,
 ) => {
+  const newOrdering = getOrderingForNewChild(state, tag.parentTagId)
   if (newParentId) {
     const parent = adapter.getSelectors().selectById(state, tag.parentTagId!)!
     const newParent = { ...parent, id: newParentId }
@@ -98,11 +112,12 @@ const addTagOrActivity = (
         parentTagId: newParent.id,
         displayAtTopLevel: false,
         color: undefined,
+        ordering: 1,
       },
     })
-    adapter.addOne(state, { ...tag, parentTagId: newParent.id })
+    adapter.addOne(state, { ...tag, parentTagId: newParent.id, ordering: 0 })
   } else {
-    adapter.addOne(state, tag)
+    adapter.addOne(state, { ...tag, ordering: newOrdering })
   }
 }
 
@@ -133,7 +148,8 @@ export const selectNonActivityRootTagIds = createSelector(selectTags, (tags) =>
   tags.filter(isNonActivityRootTag).map((tag) => tag.id),
 )
 
-export const getRootTagId = (tags: Dictionary<Tag>, id: Id) => {
+export const getRootTagId = (state: EntityState<Tag>, id: Id) => {
+  const tags = adapter.getSelectors().selectEntities(state)
   const findRootTag = (id: Id): Id => {
     const parentId = tags[id]?.parentTagId
     return parentId ? findRootTag(parentId) : id
@@ -159,13 +175,16 @@ export const selectTagIdPath = createCachedSelector(
 )((_: RootState, id) => id)
 
 export const selectRootTagId = createCachedSelector(
-  selectTagDictionary,
+  selectTagState,
   (_: RootState, id: Id) => id,
   getRootTagId,
 )((_: RootState, id) => id)
 
+export const getTagChildren = (tags: Tag[], id: Id) =>
+  tags.filter((tag) => tag?.parentTagId === id)
+
 export const getTagChildrenIds = (tags: Tag[], id: Id) =>
-  tags.filter((tag) => tag?.parentTagId === id).map((tag) => tag.id)
+  getTagChildren(tags, id).map((tag) => tag.id)
 
 export const selectTagChildrenIds = createCachedSelector(
   selectTags,
@@ -191,35 +210,52 @@ export const selectTagColor = createCachedSelector(
   },
 )((_: RootState, id) => id)
 
-export const isActivity = (tagDictionary: Dictionary<Tag>, id: Id) =>
-  isRootActivityId(getRootTagId(tagDictionary, id))
+export const isActivity = (state: EntityState<Tag>, id: Id) =>
+  isRootActivityId(getRootTagId(state, id))
+
+export const getTopLevelDisplayTags = (state: EntityState<Tag>) =>
+  adapter
+    .getSelectors()
+    .selectAll(state)
+    .filter(
+      (tag) =>
+        !isActivity(state, tag!.id) &&
+        (tag!.displayAtTopLevel || isRootTag(tag!)),
+    )
 
 export const selectTopLevelDisplayTagIds = createSelector(
-  selectTagDictionary,
-  (tags) =>
-    Object.values(tags)
+  selectTagState,
+  (state) =>
+    adapter
+      .getSelectors()
+      .selectAll(state)
       .filter(
         (tag) =>
-          !isActivity(tags, tag!.id) &&
+          !isActivity(state, tag!.id) &&
           (tag!.displayAtTopLevel || isRootTag(tag!)),
       )
       .map((tag) => tag!.id),
 )
 
-export const getDisplayTagChildrenIds = (tags: Tag[], id: Id) => {
-  return tags
+export const getDisplayTagChildren = (state: EntityState<Tag>, id: Id) =>
+  adapter
+    .getSelectors()
+    .selectAll(state)
     .filter((tag) => !tag.displayAtTopLevel && tag?.parentTagId === id)
-    .map((tag) => tag.id)
-}
+
+export const getDisplayTagChildrenIds = (state: EntityState<Tag>, id: Id) =>
+  getDisplayTagChildren(state, id).map((tag) => tag.id)
 
 export type TreeNode = { activity?: Activity; tag: Tag; children: TreeNode[] }
 
 export const getDisplayTagTreeList = (
-  tags: Tag[],
-  tagDict: Dictionary<Tag>,
+  state: EntityState<Tag>,
   activityDict: Dictionary<Activity>,
   rootId: Id,
 ) => {
+  const tags = adapter.getSelectors().selectAll(state)
+  const tagDict = adapter.getSelectors().selectEntities(state)
+
   const topLevel: TreeNode[] = []
   const getChildren = (tag: Tag): TreeNode => {
     const children = getTagChildrenIds(tags, tag.id)

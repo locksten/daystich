@@ -7,11 +7,11 @@ import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { TagList } from "components/TagList"
 import { TextField } from "components/TextField"
+import { addActivity } from "ducks/actions"
+import { useSelectActivityUsages } from "ducks/activity"
 import { useAppDispatch } from "ducks/redux/store"
 import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
-import { addActivity } from "ducks/actions"
-import { useSelectActivityUsages } from "ducks/activity"
 
 type Inputs = {
   name: string
@@ -34,7 +34,12 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
     dispatch(
       addActivity({
         activity: { tagIds },
-        activityTag: { name, parentTagId, displayAtTopLevel, color },
+        activityTag: {
+          name,
+          parentTagId,
+          displayAtTopLevel,
+          color,
+        },
         isInUse: inUse,
       }),
     )

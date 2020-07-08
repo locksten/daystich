@@ -16,7 +16,7 @@ import {
   rootActivity,
 } from "ducks/common"
 import { RootState, useAppSelector } from "ducks/redux/rootReducer"
-import { isActivity, selectTagDictionary, selectTags } from "ducks/tag"
+import { isActivity, selectTagState, tagAdapter } from "ducks/tag"
 import { selectTimespanIdsByActivityIds } from "ducks/timeSpan"
 import createCachedSelector from "re-reselect"
 
@@ -93,13 +93,14 @@ export const {
 }
 
 export const selectTopLevelDisplayActivityIds = createSelector(
-  selectTagDictionary,
-  selectTags,
-  (tagDict, tags) => {
-    return tags
+  selectTagState,
+  (tagState) => {
+    return tagAdapter
+      .getSelectors()
+      .selectAll(tagState)
       .filter(
         (tag) =>
-          (isActivity(tagDict, tag.id) && tag.displayAtTopLevel) ||
+          (isActivity(tagState, tag.id) && tag.displayAtTopLevel) ||
           isRootActivityId(tag?.parentTagId),
       )
       .map((tag) => tag.id)

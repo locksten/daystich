@@ -11,16 +11,17 @@ import { useEditActivityModal } from "components/modals/EditActivityModal"
 import { useEditTagModal } from "components/modals/EditTagModal"
 import { ModalHookReturnType } from "components/modals/Modal"
 import { useAppSelector } from "ducks/redux/rootReducer"
+import { useAppDispatch } from "ducks/redux/store"
 import {
   selectDisplayTopLevelActivityTreeList,
-  selectTopLevelDisplayTagTreeList,
   selectTagTreeList,
+  selectTopLevelDisplayTagTreeList,
 } from "ducks/selectors"
-import { useAppDispatch } from "ducks/redux/store"
 import { selectTagColor, TreeNode } from "ducks/tag"
 import { addTimeSpanNow } from "ducks/timeSpan"
 import { useEditMode } from "hooks/editMode"
 import { FC, Fragment } from "react"
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd"
 import "twin.macro"
 import tw from "twin.macro"
 
@@ -33,22 +34,36 @@ const CardList: FC<{
   nodes: TreeNode[]
   config: CardListConfig
   singleConfig: SingleConfig
-}> = ({ nodes, config: { filters, singleColumn }, singleConfig, ...props }) => {
+}> = ({ nodes, config: { filters }, singleConfig, ...props }) => {
   const filteredNodes = filters ? applyFilters(nodes, filters) : nodes
   return (
-    <div
-      tw="grid gap-4"
-      css={css`
-        ${singleColumn ? tw`grid-cols-1` : tw`grid-cols-3`};
-      `}
-      {...props}
+    <DragDropContext
+      onDragEnd={(e) =>
+        console.log(
+          `drop ${e.draggableId} at ${e.destination?.index} in ${e.destination?.droppableId}`,
+        )
+      }
     >
-      {filteredNodes.map((n) => (
-        <div key={n.tag.id}>
-          <ListCard node={n} singleConfig={singleConfig} />
-        </div>
-      ))}
-    </div>
+      <Droppable droppableId={"CardLists"}>
+        {(provided) => (
+          <div tw="flex justify-center">
+            <div
+              tw="grid gap-4 max-w-lg w-full"
+              {...props}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {filteredNodes.map((n) => (
+                <div key={n.tag.id}>
+                  <ListCard node={n} singleConfig={singleConfig} />
+                </div>
+              ))}
+              {provided.placeholder}
+            </div>
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   )
 }
 
@@ -123,16 +138,34 @@ const ListCard: FC<{
   node: TreeNode
   singleConfig: SingleConfig
 }> = ({ node, singleConfig }) => {
+  const { editMode } = useEditMode()
   const color = useAppSelector((s) => selectTagColor(s, node.tag.id))
   return (
-    <Card css={{ backgroundColor: color }}>
-      <div tw="leading-none pl-1 grid gap-1">
-        <Single node={node} isTopLevel={true} singleConfig={singleConfig} />
-        {node.children.length !== 0 && (
-          <List nodes={node.children} singleConfig={singleConfig} />
-        )}
-      </div>
-    </Card>
+    <Draggable
+      draggableId={node.tag.id}
+      index={node.tag.ordering}
+      isDragDisabled={!editMode}
+    >
+      {(provided) => (
+        <Card
+          css={{ backgroundColor: color }}
+          innerRef={provided.innerRef}
+          {...provided.draggableProps}
+        >
+          <div tw="leading-none pl-1 grid gap-1">
+            <Single
+              node={node}
+              isTopLevel={true}
+              singleConfig={singleConfig}
+              {...provided.dragHandleProps}
+            />
+            {node.children.length !== 0 && (
+              <List nodes={node.children} singleConfig={singleConfig} />
+            )}
+          </div>
+        </Card>
+      )}
+    </Draggable>
   )
 }
 
@@ -165,11 +198,20 @@ const Single: FC<{
   node: TreeNode
   isTopLevel: boolean
   singleConfig: SingleConfig
-}> = ({ node, singleConfig: { onLeafClick, RenderSide }, isTopLevel }) => {
+}> = ({
+  node,
+  singleConfig: { onLeafClick, RenderSide },
+  isTopLevel,
+  ...props
+}) => {
+  const { editMode } = useEditMode()
+
   const isLeaf = node.children.length === 0
 
   const Name: FC<{}> = ({ children, ...props }) =>
-    isLeaf ? (
+    editMode ? (
+      <div {...props}>{children}</div>
+    ) : isLeaf ? (
       <Clickable onClick={() => onLeafClick?.(node)} {...props}>
         {children}
       </Clickable>
@@ -186,26 +228,25 @@ const Single: FC<{
   )
 
   return (
-    <Fragment>
-      <div
-        css={css`
-          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white overflow-hidden`};
-          ${isTopLevel && tw`text-xl font-extrabold`};
-          ${!isTopLevel && !isLeaf && tw`text-lg font-semibold`};
-          ${!isTopLevel &&
-          isLeaf &&
-          css`
-            ${tw`text-lg font-semibold`};
-            &:hover {
-              background-color: rgba(0, 0, 0, 0.05);
-            }
-          `};
-        `}
-      >
-        <Name tw="w-full text-left min-w-0 truncate">{node.tag.name}</Name>
-        <Side />
-      </div>
-    </Fragment>
+    <div
+      css={css`
+        ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white overflow-hidden`};
+        ${isTopLevel && tw`text-xl font-extrabold`};
+        ${!isTopLevel && !isLeaf && tw`text-lg font-semibold`};
+        ${!isTopLevel &&
+        isLeaf &&
+        css`
+          ${tw`text-lg font-semibold`};
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+          }
+        `};
+      `}
+      {...props}
+    >
+      <Name tw="w-full text-left min-w-0 truncate">{`${node.tag.ordering}. ${node.tag.name}`}</Name>
+      <Side />
+    </div>
   )
 }
 

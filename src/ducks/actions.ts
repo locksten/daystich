@@ -13,10 +13,10 @@ export const addActivity = createAction<
   AppPrepareAction<
     {
       activity: Omit<Activity, "id">
-      activityTag: Omit<Tag, "id">
+      activityTag: Omit<Tag, "id" | "ordering">
       isInUse: boolean
     },
-    { activity: Activity; activityTag: Tag; newParentId?: Id }
+    { activity: Activity; activityTag: Omit<Tag, "ordering">; newParentId?: Id }
   >
 >("activity/addActivity", ({ activity, activityTag, isInUse }) => {
   const id = nanoid()
@@ -58,8 +58,8 @@ export const removeTag = createAction<
 
 export const addTag = createAction<
   AppPrepareAction<
-    { tag: Omit<Tag, "id">; isInUse: boolean },
-    { tag: Tag; newParentId?: Id }
+    { tag: Omit<Tag, "id" | "ordering">; isInUse: boolean },
+    { tag: Omit<Tag, "ordering">; newParentId?: Id }
   >
 >(`tag/addTag`, ({ tag, isInUse }) => ({
   payload: {

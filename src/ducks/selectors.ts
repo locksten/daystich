@@ -9,6 +9,7 @@ import {
   Tag,
   TreeNode,
   getTagChildrenIds,
+  selectTagState,
 } from "ducks/tag"
 import { createSelector } from "reselect"
 import createCachedSelector from "re-reselect"
@@ -16,13 +17,12 @@ import { RootState } from "ducks/redux/rootReducer"
 import { Id } from "common"
 
 export const selectTopLevelDisplayTagTreeList = createSelector(
-  selectTags,
-  selectTagDictionary,
+  selectTagState,
   selectActivityDictionary,
   selectNonActivityRootTagIds,
-  (tags, tagDict, activityDict, rootTagIds) =>
+  (tagState, activityDict, rootTagIds) =>
     rootTagIds.flatMap((id) =>
-      getDisplayTagTreeList(tags, tagDict, activityDict, id),
+      getDisplayTagTreeList(tagState, activityDict, id),
     ),
 )
 
@@ -45,13 +45,12 @@ export const selectTagTreeList = createCachedSelector(
 )((_: RootState, id) => id)
 
 export const selectDisplayTopLevelActivityTreeList = createSelector(
-  selectTags,
-  selectTagDictionary,
+  selectTagState,
   selectActivityDictionary,
-  (tags, tagDict, activityDict) => {
-    const children = getDisplayTagChildrenIds(tags, rootActivityId)
+  (tagState, activityDict) => {
+    const children = getDisplayTagChildrenIds(tagState, rootActivityId)
     return children.flatMap((id) =>
-      getDisplayTagTreeList(tags, tagDict, activityDict, id),
+      getDisplayTagTreeList(tagState, activityDict, id),
     )
   },
 )

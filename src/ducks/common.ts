@@ -17,6 +17,7 @@ export const rootActivityTag: Tag = {
   name: "Activity",
   color: "#4A5568",
   displayAtTopLevel: false,
+  ordering: 0,
 }
 
 export const rootActivity: Activity = {
