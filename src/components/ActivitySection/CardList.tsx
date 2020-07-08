@@ -189,7 +189,7 @@ const Single: FC<{
     <Fragment>
       <div
         css={css`
-          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white`};
+          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white overflow-hidden`};
           ${isTopLevel && tw`text-xl font-extrabold`};
           ${!isTopLevel && !isLeaf && tw`text-lg font-semibold`};
           ${!isTopLevel &&
@@ -202,7 +202,7 @@ const Single: FC<{
           `};
         `}
       >
-        <Name tw="flex-grow flex justify-between">{node.tag.name}</Name>
+        <Name tw="w-full text-left min-w-0 truncate">{node.tag.name}</Name>
         <Side />
       </div>
     </Fragment>

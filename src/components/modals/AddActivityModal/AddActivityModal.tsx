@@ -11,6 +11,7 @@ import { useAppDispatch } from "ducks/redux/store"
 import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
 import { addActivity } from "ducks/actions"
+import { useSelectActivityUsages } from "ducks/activity"
 
 type Inputs = {
   name: string
@@ -25,6 +26,8 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
 }) => {
   const dispatch = useAppDispatch()
 
+  const { inUse } = useSelectActivityUsages(parentTagId)
+
   const { control, register, handleSubmit } = useForm<Inputs>()
   const onSubmit = ({ name, displayAtTopLevel, color, tagIds }: Inputs) => {
     closeModal()
@@ -32,6 +35,7 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
       addActivity({
         activity: { tagIds },
         activityTag: { name, parentTagId, displayAtTopLevel, color },
+        isInUse: inUse,
       }),
     )
   }

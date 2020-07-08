@@ -7,8 +7,9 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit"
 import { Duration, Id, Timestamp } from "common"
+import { AppPrepareAction, removeActivity, removeTag } from "ducks/actions"
+import { removeOneToManyRelation } from "ducks/common"
 import { RootState } from "ducks/redux/rootReducer"
-import { AppPrepareAction, removeActivity } from "ducks/actions"
 import createCachedSelector from "re-reselect"
 
 export type TimeSpan = {
@@ -110,6 +111,22 @@ const timeSpanSlice = createSlice({
         )
       },
     )
+    builder.addCase(
+      removeTag,
+      (
+        state,
+        { payload: { affectedTagIds, affectedTimeSpanIds, replacementId } },
+      ) => {
+        removeOneToManyRelation(
+          state,
+          adapter,
+          "tagIds",
+          affectedTimeSpanIds,
+          affectedTagIds,
+          replacementId,
+        )
+      },
+    )
   },
 })
 
@@ -161,4 +178,17 @@ export const selectTimespanIdsByActivityIds = createCachedSelector(
   selectTimespans,
   (_: RootState, ids: Id[]) => ids,
   getTimespanIdsByActivityIds,
+)((_: RootState, ids) => ids.reduce((a, b) => a + b, ""))
+
+const getTimespanIdsByTagIds = (spans: TimeSpan[], ids: Id[]) =>
+  spans
+    .filter((span) =>
+      span.tagIds.map((tagId) => ids.includes(tagId)).includes(true),
+    )
+    .map((s) => s.id)
+
+export const selectTimespanIdsByTagIds = createCachedSelector(
+  selectTimespans,
+  (_: RootState, ids: Id[]) => ids,
+  getTimespanIdsByTagIds,
 )((_: RootState, ids) => ids.reduce((a, b) => a + b, ""))

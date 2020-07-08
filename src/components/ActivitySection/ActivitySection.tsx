@@ -21,8 +21,14 @@ import { FC, Fragment, useState } from "react"
 import "twin.macro"
 import tw from "twin.macro"
 
-export const ActivitySection: FC<{}> = () => {
-  const [selectedTagId, setSelectedTagId] = useState<Id | undefined>(undefined)
+export const ActivitySection: FC = () => {
+  const [selectedTagIdState, setSelectedTagId] = useState<Id | undefined>(
+    undefined,
+  )
+
+  const selectedTagId = useAppSelector((s) =>
+    selectTagById(s, selectedTagIdState || ""),
+  )?.id
 
   const addActivityModal = useAddActivityModal()({
     parentTagId: rootActivityId,
@@ -33,7 +39,7 @@ export const ActivitySection: FC<{}> = () => {
   return (
     <EditModeProvider>
       <div tw="grid gap-8">
-        <RootTags onClick={setSelectedTagId} />
+        <RootTags onClick={setSelectedTagId} selectedTagId={selectedTagId} />
         <ActivityCardList
           config={{ filters: { byActivityTagId: selectedTagId } }}
         />
@@ -50,7 +56,10 @@ export const ActivitySection: FC<{}> = () => {
   )
 }
 
-const RootTags: FC<{ onClick: (id?: Id) => void }> = ({ onClick }) => {
+const RootTags: FC<{ onClick: (id?: Id) => void; selectedTagId?: Id }> = ({
+  onClick,
+  selectedTagId,
+}) => {
   const ids = useAppSelector(selectTopLevelDisplayTagIds)
 
   const { editMode, toggleEditMode } = useEditMode()
@@ -67,20 +76,24 @@ const RootTags: FC<{ onClick: (id?: Id) => void }> = ({ onClick }) => {
     <Fragment>
       <div tw="-my-2 flex flex-wrap justify-center items-stretch">
         <Margin>
-          <CardButton onClick={() => onClick(undefined)}>Activities</CardButton>
+          <CardButton
+            onClick={() => onClick(undefined)}
+            isSelected={selectedTagId === undefined}
+          >
+            Activities
+          </CardButton>
         </Margin>
         {ids.map((id) => (
           <Margin key={id}>
-            <RootTag id={id} onClick={onClick} />
+            <RootTag
+              id={id}
+              onClick={onClick}
+              isSelected={selectedTagId === id}
+            />
           </Margin>
         ))}
         <Margin>
-          <CardButton
-            onClick={toggleEditMode}
-            css={css`
-              ${editMode && tw`underline`}
-            `}
-          >
+          <CardButton onClick={toggleEditMode} isSelected={editMode}>
             {editMode ? "Done" : "Edit"}
           </CardButton>
         </Margin>
@@ -100,10 +113,11 @@ const RootTags: FC<{ onClick: (id?: Id) => void }> = ({ onClick }) => {
   )
 }
 
-const RootTag: FC<{ id: Id; onClick: (id?: Id) => void }> = ({
-  id,
-  onClick,
-}) => {
+const RootTag: FC<{
+  id: Id
+  onClick: (id?: Id) => void
+  isSelected: boolean
+}> = ({ id, isSelected, onClick }) => {
   const tag = useAppSelector((s) => selectTagById(s, id))!
   const color = useAppSelector((s) => selectTagColor(s, id))
   const isLeaf =
@@ -122,6 +136,7 @@ const RootTag: FC<{ id: Id; onClick: (id?: Id) => void }> = ({
           onClick={() =>
             isLeaf && !editMode ? onClick(id) : tagCardModal.open()
           }
+          isSelected={isSelected}
           css={{ backgroundColor: color }}
         >
           {tag.name}
@@ -131,13 +146,20 @@ const RootTag: FC<{ id: Id; onClick: (id?: Id) => void }> = ({
   )
 }
 
-const CardButton: FC<{ onClick: () => void }> = ({
+const CardButton: FC<{ onClick: () => void; isSelected?: boolean }> = ({
   onClick,
+  isSelected = false,
   children,
   ...props
 }) => (
   <Clickable onClick={onClick}>
-    <Card tw="flex bg-gray-600 text-white text-lg font-semibold" {...props}>
+    <Card
+      css={css`
+        ${tw`flex bg-gray-600 text-white text-lg font-semibold`};
+        ${isSelected && tw`underline`};
+      `}
+      {...props}
+    >
       {children}
     </Card>
   </Clickable>

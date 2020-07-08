@@ -17,6 +17,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {label}
       </label>
       <input
+        tw="focus:outline-none focus:shadow-outline"
         ref={ref}
         name={name}
         type="checkbox"

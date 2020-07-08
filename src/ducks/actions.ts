@@ -14,15 +14,17 @@ export const addActivity = createAction<
     {
       activity: Omit<Activity, "id">
       activityTag: Omit<Tag, "id">
+      isInUse: boolean
     },
-    { activity: Activity; activityTag: Tag }
+    { activity: Activity; activityTag: Tag; newParentId?: Id }
   >
->("activity/addActivity", ({ activity, activityTag }) => {
+>("activity/addActivity", ({ activity, activityTag, isInUse }) => {
   const id = nanoid()
   return {
     payload: {
       activity: { ...activity, id },
       activityTag: { ...activityTag, id },
+      newParentId: isInUse ? nanoid() : undefined,
     },
   }
 })
@@ -38,5 +40,33 @@ export const updateActivity = createAction<ActivtyChangesType>(
 )
 
 export const removeActivity = createAction<
-  Pick<Activity, "id"> & { affectedTimeSpanIds: Id[]; replacementId?: Id }
+  Pick<Activity, "id"> & {
+    affectedActivityIds: Id[]
+    affectedTimeSpanIds: Id[]
+    replacementId?: Id
+  }
 >("activity/removeActivity")
+
+export const removeTag = createAction<
+  Pick<Tag, "id"> & {
+    affectedTagIds: Id[]
+    affectedTimeSpanIds: Id[]
+    affectedActivityIds: Id[]
+    replacementId?: Id
+  }
+>("tag/removeTag")
+
+export const addTag = createAction<
+  AppPrepareAction<
+    { tag: Omit<Tag, "id">; isInUse: boolean },
+    { tag: Tag; newParentId?: Id }
+  >
+>(`tag/addTag`, ({ tag, isInUse }) => ({
+  payload: {
+    tag: {
+      ...tag,
+      id: nanoid(),
+    },
+    newParentId: isInUse ? nanoid() : undefined,
+  },
+}))

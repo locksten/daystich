@@ -10,11 +10,14 @@ import { SecondaryButton } from "components/SecondaryButton"
 import { TagList } from "components/TagList"
 import { TextField } from "components/TextField"
 import { removeActivity, updateActivity } from "ducks/actions"
-import { selectActivityById } from "ducks/activity"
+import {
+  Activity,
+  selectActivityById,
+  useSelectActivitiesUsages,
+} from "ducks/activity"
 import { useAppSelector } from "ducks/redux/rootReducer"
 import { useAppDispatch } from "ducks/redux/store"
-import { selectTagById, selectTagDescendantIds } from "ducks/tag"
-import { selectTimespanIdsByActivityIds } from "ducks/timeSpan"
+import { selectTagById, selectTagDescendantIds, Tag } from "ducks/tag"
 import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
 
@@ -50,7 +53,10 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
     )
   }
 
-  const { RemoveActivityModal, onRemoveActivityClick } = useRemoveActivity(id)
+  const { RemoveActivityModal, onRemoveActivityClick } = useRemoveActivity(
+    activity,
+    tag,
+  )
 
   return (
     <FormModal onSubmit={handleSubmit(onSubmit)}>
@@ -70,8 +76,8 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
         />
       </div>
       <SecondaryButton
-        tw="text-red-600"
         text="Delete"
+        kind="danger"
         onClick={onRemoveActivityClick}
       />
       <PrimaryButton text="Save" type="submitButton" />
@@ -80,38 +86,40 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   )
 }
 
-const useRemoveActivity = (id: Id) => {
+const useRemoveActivity = (activity: Activity, activityTag: Tag) => {
   const dispatch = useAppDispatch()
 
   const activityIds = [
-    id,
-    ...useAppSelector((s) => selectTagDescendantIds(s, id)),
+    activity.id,
+    ...useAppSelector((s) => selectTagDescendantIds(s, activity.id)),
   ]
 
-  const timeSpanIds = useAppSelector((s) =>
-    selectTimespanIdsByActivityIds(s, activityIds),
-  )
+  const { inUse, timeSpanIds } = useSelectActivitiesUsages(activityIds)
 
-  const n = timeSpanIds.length
+  const remove = (replacement?: Tag) =>
+    dispatch(
+      removeActivity({
+        id: activity.id,
+        affectedActivityIds: activityIds,
+        affectedTimeSpanIds: timeSpanIds,
+        replacementId: replacement?.id,
+      }),
+    )
+
+  const t = timeSpanIds.length
   const activitySelectModal = useCardListSelectModal()({
     type: "activity",
-    title: `Select replacement for ${n} timespan${n === 1 ? "" : "s"}`,
-    onClick: (replacement) =>
-      dispatch(
-        removeActivity({
-          id,
-          affectedTimeSpanIds: timeSpanIds,
-          replacementId: replacement.id,
-        }),
-      ),
+    filters: { byNotId: activityTag.id },
+    title: `Select a replacement for the ${t} timespan${
+      t === 1 ? "" : "s"
+    } using ${activityTag.name}`,
+    onClick: remove,
   })
 
   return {
     RemoveActivityModal: activitySelectModal.Modal,
     onRemoveActivityClick: () =>
-      timeSpanIds.length === 0
-        ? dispatch(removeActivity({ id, affectedTimeSpanIds: [] }))
-        : activitySelectModal.open(),
+      inUse ? activitySelectModal.open() : remove(),
   }
 }
 

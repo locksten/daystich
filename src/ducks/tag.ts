@@ -1,28 +1,29 @@
 import {
-  createAction,
   createEntityAdapter,
   createSelector,
   createSlice,
   Dictionary,
-  nanoid,
+  EntityState,
   PayloadAction,
 } from "@reduxjs/toolkit"
 import { Color, Id } from "common"
-import { Activity } from "ducks/activity"
+import {
+  addActivity,
+  addTag,
+  removeActivity,
+  removeTag,
+  updateActivity,
+} from "ducks/actions"
+import { Activity, selectActivityIdsByTagIds } from "ducks/activity"
 import {
   defaultTagColor,
   isRootActivity,
   isRootActivityId,
   rootActivityTag,
 } from "ducks/common"
-import { RootState } from "ducks/redux/rootReducer"
+import { RootState, useAppSelector } from "ducks/redux/rootReducer"
+import { selectTimespanIdsByTagIds } from "ducks/timeSpan"
 import createCachedSelector from "re-reselect"
-import {
-  addActivity,
-  updateActivity,
-  removeActivity,
-  AppPrepareAction,
-} from "ducks/actions"
 
 export type Tag = {
   id: Id
@@ -44,10 +45,6 @@ const tagSlice = createSlice({
   name: "tag",
   initialState,
   reducers: {
-    addTag: adapter.addOne,
-    removeTag(state, { payload: { id } }: PayloadAction<Pick<Tag, "id">>) {
-      adapter.removeOne(state, id)
-    },
     updateTag(
       state,
       {
@@ -57,37 +54,63 @@ const tagSlice = createSlice({
       adapter.updateOne(state, { id: tag.id, changes: tag })
     },
   },
+
   extraReducers: (builder) => {
-    builder.addCase(addActivity, (state, { payload: { activityTag } }) => {
-      adapter.addOne(state, activityTag)
+    builder.addCase(addTag, (state, { payload: { tag, newParentId } }) => {
+      addTagOrActivity(state, tag, newParentId)
     })
+    builder.addCase(
+      addActivity,
+      (state, { payload: { activityTag, newParentId } }) => {
+        addTagOrActivity(state, activityTag, newParentId)
+      },
+    )
     builder.addCase(
       updateActivity,
       (state, { payload: { id, activityTag } }) => {
         adapter.updateOne(state, { id, changes: activityTag })
       },
     )
-    builder.addCase(removeActivity, (state, { payload: { id } }) => {
-      adapter.removeOne(state, id)
+    builder.addCase(
+      removeActivity,
+      (state, { payload: { affectedActivityIds } }) => {
+        adapter.removeMany(state, affectedActivityIds)
+      },
+    )
+    builder.addCase(removeTag, (state, { payload: { affectedTagIds } }) => {
+      adapter.removeMany(state, affectedTagIds)
     })
   },
 })
 
-export const tagReducer = tagSlice.reducer
-
-export const { removeTag, updateTag } = {
-  ...tagSlice.actions,
+const addTagOrActivity = (
+  state: EntityState<Tag>,
+  tag: Tag,
+  newParentId?: Id,
+) => {
+  if (newParentId) {
+    const parent = adapter.getSelectors().selectById(state, tag.parentTagId!)!
+    const newParent = { ...parent, id: newParentId }
+    adapter.addOne(state, newParent)
+    adapter.updateOne(state, {
+      id: parent.id,
+      changes: {
+        parentTagId: newParent.id,
+        displayAtTopLevel: false,
+        color: undefined,
+      },
+    })
+    adapter.addOne(state, { ...tag, parentTagId: newParent.id })
+  } else {
+    adapter.addOne(state, tag)
+  }
 }
 
-export const addTag = createAction<AppPrepareAction<Omit<Tag, "id">, Tag>>(
-  tagSlice.actions.addTag.type,
-  (tag) => ({
-    payload: {
-      ...tag,
-      id: nanoid(),
-    },
-  }),
-)
+export const tagReducer = tagSlice.reducer
+
+export const { updateTag } = {
+  ...tagSlice.actions,
+}
 
 export const {
   selectAll: selectTags,
@@ -232,3 +255,16 @@ export const selectTagDescendantIds = createCachedSelector(
   (_: RootState, id: Id) => id,
   getTagDescendantIds,
 )((_: RootState, id) => id)
+
+export const useSelectTagsUsages = (ids: Id[]) => {
+  const activityIds = useAppSelector((s) => selectActivityIdsByTagIds(s, ids))
+  const timeSpanIds = useAppSelector((s) => selectTimespanIdsByTagIds(s, ids))
+  return {
+    activityIds,
+    timeSpanIds,
+    inUse: activityIds.length !== 0 || timeSpanIds.length !== 0,
+  }
+}
+
+export const useSelectTagUsages = (id?: Id) =>
+  useSelectTagsUsages(id ? [id] : [])

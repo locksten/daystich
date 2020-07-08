@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from "@emotion/core"
+import { jsx, css } from "@emotion/core"
 import { FC } from "react"
 import "twin.macro"
 
@@ -35,7 +35,12 @@ export const Clickable: FC<ClickableProps> = ({
           ? "reset"
           : "button"
       }
-      tw="focus:outline-none focus:shadow-outline"
+      tw="focus:outline-none"
+      css={css`
+        :focus {
+          box-shadow: inset 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+      `}
       {...props}
     >
       {children}

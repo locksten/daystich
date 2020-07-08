@@ -9,14 +9,17 @@ import { Modal, useModal } from "components/modals/Modal"
 import { TextField } from "components/TextField"
 import { Tag } from "ducks/tag"
 import { useEditModeProvider } from "hooks/editMode"
-import { useState } from "react"
+import { useState, ReactNode } from "react"
 import "twin.macro"
+import { Filters } from "components/ActivitySection/filters"
 
 export const CardListSelectModal: Modal<{
   type: "activity" | "tag"
   title?: string
+  RenderBelowTitle?: ReactNode
+  filters?: Filters
   onClick: (tag: Tag) => void
-}> = ({ type, title, onClick, closeModal }) => {
+}> = ({ type, title, RenderBelowTitle, onClick, filters, closeModal }) => {
   const [searchTerm, setSearchTerm] = useState("")
 
   const { EditModeProvider } = useEditModeProvider()
@@ -25,30 +28,35 @@ export const CardListSelectModal: Modal<{
 
   return (
     <Card
-      tw="p-0 max-h-full flex flex-col"
+      tw="p-0 overflow-hidden"
       css={css`
         width: min-content;
+        max-height: inherit;
       `}
     >
-      {title && (
-        <div tw="mx-4 mt-4 text-center whitespace-normal text-lg font-bold">
-          {title}
-        </div>
-      )}
-      <TextField
-        tw="mx-4 my-4"
-        name="searchBox"
-        placeholder={"Search"}
-        value={searchTerm}
-        onChange={setSearchTerm}
-      />
-      <div tw="h-full overflow-scroll">
+      <div tw="mx-4 my-4 space-y-4">
+        {title && <div tw="text-center text-lg font-bold">{title}</div>}
+        {RenderBelowTitle}
+        <TextField
+          name="searchBox"
+          placeholder={"Search"}
+          value={searchTerm}
+          onChange={setSearchTerm}
+        />
+      </div>
+      <div
+        tw="h-full overflow-scroll"
+        css={css`
+          min-height: 100%;
+          height: 100%;
+        `}
+      >
         <EditModeProvider>
           <CardListComponent
             tw="px-4 pb-6"
             config={{
               singleColumn: true,
-              filters: { byName: searchTerm },
+              filters: { ...filters, byName: searchTerm },
             }}
             singleConfig={{
               onLeafClick: ({ tag }) => {
