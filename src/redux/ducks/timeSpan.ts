@@ -7,10 +7,14 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit"
 import { Duration, Id, Timestamp } from "common"
-import { AppPrepareAction, removeActivity, removeTag } from "ducks/actions"
-import { removeOneToManyRelation } from "ducks/common"
-import { RootState } from "ducks/redux/rootReducer"
+import {
+  AppPrepareAction,
+  removeActivity,
+  removeTag,
+} from "redux/ducks/shared/actions"
+import { RootState } from "redux/redux/rootReducer"
 import createCachedSelector from "re-reselect"
+import { removeOneToManyRelation } from "redux/relations"
 
 export type TimeSpan = {
   id: Id

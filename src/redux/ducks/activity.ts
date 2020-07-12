@@ -1,24 +1,17 @@
-import {
-  createEntityAdapter,
-  createSelector,
-  createSlice,
-} from "@reduxjs/toolkit"
+import { createEntityAdapter, createSlice } from "@reduxjs/toolkit"
 import { Id } from "common"
+import createCachedSelector from "re-reselect"
 import {
   addActivity,
+  moveActivity,
   removeActivity,
   removeTag,
   updateActivity,
-} from "ducks/actions"
-import {
-  isRootActivityId,
-  removeOneToManyRelation,
-  rootActivity,
-} from "ducks/common"
-import { RootState, useAppSelector } from "ducks/redux/rootReducer"
-import { isActivity, selectTagState, tagAdapter } from "ducks/tag"
-import { selectTimespanIdsByActivityIds } from "ducks/timeSpan"
-import createCachedSelector from "re-reselect"
+} from "redux/ducks/shared/actions"
+import { rootActivity } from "redux/common"
+import { selectTimespanIdsByActivityIds } from "redux/ducks/timeSpan"
+import { RootState, useAppSelector } from "redux/redux/rootReducer"
+import { removeOneToManyRelation } from "redux/relations"
 
 export type Activity = {
   id: Id
@@ -40,13 +33,22 @@ const activitySlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(
       addActivity,
-      (state, { payload: { activity, activityTag, newParentId } }) => {
+      (state, { payload: { activity, activityTag, additionalParentId } }) => {
         adapter.addOne(state, activity)
-        if (newParentId) {
+        if (additionalParentId) {
           const parent = adapter
             .getSelectors()
             .selectById(state, activityTag.parentTagId!)!
-          adapter.addOne(state, { ...parent, id: newParentId })
+          adapter.addOne(state, { ...parent, id: additionalParentId })
+        }
+      },
+    )
+    builder.addCase(
+      moveActivity,
+      (state, { payload: { newParentId, additionalParentId } }) => {
+        if (additionalParentId) {
+          const parent = adapter.getSelectors().selectById(state, newParentId!)!
+          adapter.addOne(state, { ...parent, id: additionalParentId })
         }
       },
     )
@@ -92,21 +94,6 @@ export const {
   ...selectors,
 }
 
-export const selectTopLevelDisplayActivityIds = createSelector(
-  selectTagState,
-  (tagState) => {
-    return tagAdapter
-      .getSelectors()
-      .selectAll(tagState)
-      .filter(
-        (tag) =>
-          (isActivity(tagState, tag.id) && tag.displayAtTopLevel) ||
-          isRootActivityId(tag?.parentTagId),
-      )
-      .map((tag) => tag.id)
-  },
-)
-
 const getActivityIdsByTagIds = (activities: Activity[], ids: Id[]) =>
   activities
     .filter((activity) =>
@@ -126,7 +113,7 @@ export const useSelectActivitiesUsages = (ids: Id[]) => {
   )
   return {
     timeSpanIds,
-    inUse: timeSpanIds.length !== 0,
+    isInUse: timeSpanIds.length !== 0,
   }
 }
 

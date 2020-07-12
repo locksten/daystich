@@ -1,29 +1,5 @@
 import { Id } from "common"
-import { Activity } from "ducks/activity"
-import { Tag } from "ducks/tag"
 import { EntityState, EntityAdapter } from "@reduxjs/toolkit"
-
-export const defaultTagColor = "#4A5568"
-
-export const rootActivityId = "rootActivityId-xiftrK"
-
-export const isRootActivityId = (id?: Id) => id === "rootActivityId-xiftrK"
-
-export const isRootActivity = ({ id }: { id?: Id }) =>
-  id === "rootActivityId-xiftrK"
-
-export const rootActivityTag: Tag = {
-  id: rootActivityId,
-  name: "Activity",
-  color: "#4A5568",
-  displayAtTopLevel: false,
-  ordering: 0,
-}
-
-export const rootActivity: Activity = {
-  id: rootActivityId,
-  tagIds: [],
-}
 
 export const removeOneToManyRelation = <Entity extends { id: Id }>(
   state: EntityState<Entity>,

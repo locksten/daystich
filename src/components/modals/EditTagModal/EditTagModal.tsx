@@ -8,24 +8,22 @@ import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { TextField } from "components/TextField"
-import { removeTag } from "ducks/actions"
-import { useAppSelector } from "ducks/redux/rootReducer"
-import { useAppDispatch } from "ducks/redux/store"
+import { removeTag, updateTag } from "redux/ducks/shared/actions"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { useAppDispatch } from "redux/redux/store"
 import {
   isRootTag,
   selectTagById,
   selectTagDescendantIds,
   Tag,
-  updateTag,
   useSelectTagsUsages,
-} from "ducks/tag"
+} from "redux/ducks/tag"
 import { useForm } from "react-hook-form"
 import "twin.macro"
 
 export type Inputs = {
   name: string
   color: Color
-  displayAtTopLevel: boolean
 }
 
 const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
@@ -36,7 +34,6 @@ const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
     defaultValues: {
       name: tag?.name,
       color: tag?.color,
-      displayAtTopLevel: tag.displayAtTopLevel,
     },
   })
 
@@ -51,13 +48,6 @@ const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register} name="name" label="Name" />
       <TextField ref={register} name="color" label="Color" />
-      {isRootTag(tag) || (
-        <Checkbox
-          ref={register}
-          name="displayAtTopLevel"
-          label="Display at top level"
-        />
-      )}
       <SecondaryButton text="Delete" kind="danger" onClick={onRemoveTagClick} />
       <PrimaryButton text="Save" type="submitButton" />
       <RemoveTagModal />
@@ -73,7 +63,7 @@ const useRemoveTag = (tag: Tag) => {
     ...useAppSelector((s) => selectTagDescendantIds(s, tag.id)),
   ]
 
-  const { inUse, activityIds, timeSpanIds } = useSelectTagsUsages(tagIds)
+  const { isInUse, activityIds, timeSpanIds } = useSelectTagsUsages(tagIds)
 
   const remove = (replacement?: Tag) =>
     dispatch(
@@ -110,7 +100,7 @@ const useRemoveTag = (tag: Tag) => {
 
   return {
     RemoveTagModal: tagSelectModal.Modal,
-    onRemoveTagClick: () => (inUse ? tagSelectModal.open() : remove()),
+    onRemoveTagClick: () => (isInUse ? tagSelectModal.open() : remove()),
   }
 }
 

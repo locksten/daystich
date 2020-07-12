@@ -1,7 +1,26 @@
-import { TreeNode } from "ducks/tag"
+import { TreeNode } from "redux/ducks/tag"
 import { Id } from "common"
 
+export type Filters = {
+  byName?: string
+  byId?: Id
+  byNotId?: Id
+  byActivityTagId?: Id
+}
+
 type Predicate = (node: TreeNode) => boolean
+
+const nameFilter = (name: string) => ({ tag }: TreeNode) =>
+  tag.name.toLowerCase().includes(name)
+
+const idFilter = (id: Id) => ({ tag }: TreeNode) => tag.id === id
+
+const activityTagIdFilter = (id: Id) => ({ activity }: TreeNode) => {
+  return activity!.tagIds.includes(id)
+}
+
+const inverted = (pred: Predicate) => (...args: Parameters<typeof pred>) =>
+  !pred(...args)
 
 const treeFilter = (
   node: TreeNode,
@@ -40,23 +59,4 @@ export const applyFilters = (
   byNotId && applyFilter(inverted(idFilter(byNotId)), true)
   byActivityTagId && applyFilter(activityTagIdFilter(byActivityTagId))
   return nodes
-}
-
-export type Filters = {
-  byName?: string
-  byId?: Id
-  byNotId?: Id
-  byActivityTagId?: Id
-}
-
-const inverted = (pred: Predicate) => (...args: Parameters<typeof pred>) =>
-  !pred(...args)
-
-const nameFilter = (name: string) => ({ tag }: TreeNode) =>
-  tag.name.toLowerCase().includes(name)
-
-const idFilter = (id: Id) => ({ tag }: TreeNode) => tag.id === id
-
-const activityTagIdFilter = (id: Id) => ({ activity }: TreeNode) => {
-  return activity!.tagIds.includes(id)
 }

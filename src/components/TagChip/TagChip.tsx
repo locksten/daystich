@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Id } from "common"
-import { useAppSelector } from "ducks/redux/rootReducer"
-import { selectTagById, selectTagColor } from "ducks/tag"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { selectTagById, selectTagColor } from "redux/ducks/tag"
 import { FC } from "react"
 import "twin.macro"
 import { Clickable } from "components/Clickable"

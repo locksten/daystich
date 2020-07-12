@@ -9,15 +9,15 @@ import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { TagList } from "components/TagList"
 import { TextField } from "components/TextField"
-import { removeActivity, updateActivity } from "ducks/actions"
+import { removeActivity, updateActivity } from "redux/ducks/shared/actions"
 import {
   Activity,
   selectActivityById,
   useSelectActivitiesUsages,
-} from "ducks/activity"
-import { useAppSelector } from "ducks/redux/rootReducer"
-import { useAppDispatch } from "ducks/redux/store"
-import { selectTagById, selectTagDescendantIds, Tag } from "ducks/tag"
+} from "redux/ducks/activity"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { useAppDispatch } from "redux/redux/store"
+import { selectTagById, selectTagDescendantIds, Tag } from "redux/ducks/tag"
 import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
 
@@ -25,7 +25,6 @@ type Inputs = {
   name: string
   tagIds: Id[]
   color: Color
-  displayAtTopLevel: boolean
 }
 
 const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
@@ -37,18 +36,17 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
     defaultValues: {
       name: tag?.name,
       color: tag?.color,
-      displayAtTopLevel: tag.displayAtTopLevel,
       tagIds: activity.tagIds,
     },
   })
 
-  const onSubmit = ({ displayAtTopLevel, name, color, tagIds }: Inputs) => {
+  const onSubmit = ({ name, color, tagIds }: Inputs) => {
     closeModal()
     dispatch(
       updateActivity({
         id,
         activity: { tagIds },
-        activityTag: { displayAtTopLevel, name, color },
+        activityTag: { name, color },
       }),
     )
   }
@@ -62,11 +60,6 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register} name="name" label="Name" />
       <TextField ref={register} name="color" label="Color" />
-      <Checkbox
-        ref={register}
-        name="displayAtTopLevel"
-        label="Display at top level"
-      />
       <div>
         <label htmlFor={"tagIds"}>Tags</label>
         <Controller
@@ -94,7 +87,7 @@ const useRemoveActivity = (activity: Activity, activityTag: Tag) => {
     ...useAppSelector((s) => selectTagDescendantIds(s, activity.id)),
   ]
 
-  const { inUse, timeSpanIds } = useSelectActivitiesUsages(activityIds)
+  const { isInUse, timeSpanIds } = useSelectActivitiesUsages(activityIds)
 
   const remove = (replacement?: Tag) =>
     dispatch(
@@ -119,7 +112,7 @@ const useRemoveActivity = (activity: Activity, activityTag: Tag) => {
   return {
     RemoveActivityModal: activitySelectModal.Modal,
     onRemoveActivityClick: () =>
-      inUse ? activitySelectModal.open() : remove(),
+      isInUse ? activitySelectModal.open() : remove(),
   }
 }
 

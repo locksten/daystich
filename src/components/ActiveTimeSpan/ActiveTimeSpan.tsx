@@ -2,10 +2,14 @@
 import { jsx } from "@emotion/core"
 import { Card } from "components/Card"
 import { TagList } from "components/TagList"
-import { useAppSelector } from "ducks/redux/rootReducer"
-import { useAppDispatch } from "ducks/redux/store"
-import { selectTagById, selectTagColor } from "ducks/tag"
-import { selectActiveTimespan, TimeSpan, updateTimespan } from "ducks/timeSpan"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { useAppDispatch } from "redux/redux/store"
+import { selectTagById, selectTagColor } from "redux/ducks/tag"
+import {
+  selectActiveTimespan,
+  TimeSpan,
+  updateTimespan,
+} from "redux/ducks/timeSpan"
 import { useIntervalState } from "hooks/useIntervalState"
 import { FC } from "react"
 import "twin.macro"

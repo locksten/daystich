@@ -1,6 +1,6 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit"
-import { profilingMiddleware } from "ducks/redux/profilingMiddleware"
-import rootReducer, { persistConfig } from "ducks/redux/rootReducer"
+import { profilingMiddleware } from "redux/redux/profilingMiddleware"
+import rootReducer, { persistConfig } from "redux/redux/rootReducer"
 import { useDispatch } from "react-redux"
 import { persistStore, persistReducer } from "redux-persist"
 
@@ -25,8 +25,8 @@ export type AppDispatch = typeof store.dispatch
 export const useAppDispatch = () => useDispatch<AppDispatch>()
 
 if (process.env.NODE_ENV === "development" && module.hot) {
-  module.hot.accept("ducks/redux/rootReducer", () => {
-    const newRootReducer = require("ducks/redux/rootReducer").default
+  module.hot.accept("redux/redux/rootReducer", () => {
+    const newRootReducer = require("redux/redux/rootReducer").default
     store.replaceReducer(persistReducer(persistConfig, newRootReducer))
   })
 }

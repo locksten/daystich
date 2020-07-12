@@ -1,21 +1,21 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
 import { Id } from "common"
-import { ActivityCardList } from "components/ActivitySection/CardList"
 import { Card } from "components/Card"
+import { ActivityCardList } from "components/CardList/ActivityCardList"
 import { Clickable } from "components/Clickable"
 import { IconButton } from "components/IconButton"
 import { useAddActivityModal } from "components/modals/AddActivityModal"
 import { useAddTagModal } from "components/modals/AddTagModal"
 import { useTagCardModal } from "components/modals/TagCardModal"
-import { rootActivityId } from "ducks/common"
-import { useAppSelector } from "ducks/redux/rootReducer"
+import { rootActivityId } from "redux/common"
+import { selectMainTagListEntryIds } from "redux/ducks/mainTagList"
+import { useAppSelector } from "redux/redux/rootReducer"
 import {
   selectTagById,
   selectTagChildrenIds,
   selectTagColor,
-  selectTopLevelDisplayTagIds,
-} from "ducks/tag"
+} from "redux/ducks/tag"
 import { useEditMode, useEditModeProvider } from "hooks/editMode"
 import { FC, Fragment, useState } from "react"
 import "twin.macro"
@@ -27,7 +27,7 @@ export const ActivitySection: FC = () => {
   )
 
   const selectedTagId = useAppSelector((s) =>
-    selectTagById(s, selectedTagIdState || ""),
+    selectTagById(s, selectedTagIdState ?? ""),
   )?.id
 
   const addActivityModal = useAddActivityModal()({
@@ -60,7 +60,7 @@ const RootTags: FC<{ onClick: (id?: Id) => void; selectedTagId?: Id }> = ({
   onClick,
   selectedTagId,
 }) => {
-  const ids = useAppSelector(selectTopLevelDisplayTagIds)
+  const ids = useAppSelector(selectMainTagListEntryIds)
 
   const { editMode, toggleEditMode } = useEditMode()
 

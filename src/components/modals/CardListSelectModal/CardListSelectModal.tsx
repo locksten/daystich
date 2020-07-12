@@ -1,17 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import {
-  ActivityCardList,
-  TagCardList,
-} from "components/ActivitySection/CardList"
+import { TagCardList } from "components/CardList/TagCardList"
+import { ActivityCardList } from "components/CardList/ActivityCardList"
 import { Card } from "components/Card"
 import { Modal, useModal } from "components/modals/Modal"
 import { TextField } from "components/TextField"
-import { Tag } from "ducks/tag"
+import { Tag } from "redux/ducks/tag"
 import { useEditModeProvider } from "hooks/editMode"
 import { useState, ReactNode } from "react"
 import "twin.macro"
-import { Filters } from "components/ActivitySection/filters"
+import { Filters } from "components/CardList/filters"
 
 export const CardListSelectModal: Modal<{
   type: "activity" | "tag"

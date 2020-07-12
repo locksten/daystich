@@ -1,22 +1,23 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
-import { Checkbox } from "components/Checkbox"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { TagList } from "components/TagList"
 import { TextField } from "components/TextField"
-import { addActivity } from "ducks/actions"
-import { useSelectActivityUsages } from "ducks/activity"
-import { useAppDispatch } from "ducks/redux/store"
+import { addActivity } from "redux/ducks/shared/actions"
+import { useSelectActivityUsages } from "redux/ducks/activity"
+import { isRootActivityId } from "redux/common"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { useAppDispatch } from "redux/redux/store"
+import { selectTagById } from "redux/ducks/tag"
 import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
 
 type Inputs = {
   name: string
   tagIds: Id[]
-  displayAtTopLevel: boolean
   color: Color
 }
 
@@ -25,11 +26,11 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
   closeModal,
 }) => {
   const dispatch = useAppDispatch()
-
-  const { inUse } = useSelectActivityUsages(parentTagId)
+  const parentTag = useAppSelector((s) => selectTagById(s, parentTagId || ""))
+  const { isInUse } = useSelectActivityUsages(parentTagId)
 
   const { control, register, handleSubmit } = useForm<Inputs>()
-  const onSubmit = ({ name, displayAtTopLevel, color, tagIds }: Inputs) => {
+  const onSubmit = ({ name, color, tagIds }: Inputs) => {
     closeModal()
     dispatch(
       addActivity({
@@ -37,10 +38,10 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
         activityTag: {
           name,
           parentTagId,
-          displayAtTopLevel,
           color,
         },
-        isInUse: inUse,
+        newParentIsTopLevel: isRootActivityId(parentTag?.parentTagId),
+        isInUse,
       }),
     )
   }
@@ -49,11 +50,6 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register} name="name" label="Name" />
       <TextField ref={register} name="color" label="Color" />
-      <Checkbox
-        ref={register}
-        name="displayAtTopLevel"
-        label="Display at top level"
-      />
       <div>
         <label htmlFor={"tagIds"}>Tags</label>
         <Controller

@@ -1,19 +1,18 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
-import { Checkbox } from "components/Checkbox"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { TextField } from "components/TextField"
-import { addTag } from "ducks/actions"
-import { useAppDispatch } from "ducks/redux/store"
-import { useSelectTagUsages } from "ducks/tag"
+import { addTag } from "redux/ducks/shared/actions"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { useAppDispatch } from "redux/redux/store"
+import { selectTagById, useSelectTagUsages } from "redux/ducks/tag"
 import { useForm } from "react-hook-form"
 
 type Inputs = {
   name: string
-  displayAtTopLevel: boolean
   color: Color
 }
 
@@ -22,16 +21,17 @@ const AddTagModal: Modal<{ parentTagId?: Id }> = ({
   parentTagId,
 }) => {
   const dispatch = useAppDispatch()
-
-  const { inUse } = useSelectTagUsages(parentTagId)
+  const parentTag = useAppSelector((s) => selectTagById(s, parentTagId || ""))
+  const { isInUse } = useSelectTagUsages(parentTagId)
 
   const { register, handleSubmit } = useForm<Inputs>()
-  const onSubmit = ({ name, color, displayAtTopLevel }: Inputs) => {
+  const onSubmit = ({ name, color }: Inputs) => {
     closeModal()
     dispatch(
       addTag({
-        tag: { name, parentTagId, displayAtTopLevel, color },
-        isInUse: inUse,
+        tag: { name, parentTagId, color },
+        newParentIsTopLevel: parentTag?.parentTagId === undefined,
+        isInUse: isInUse,
       }),
     )
   }
@@ -40,11 +40,6 @@ const AddTagModal: Modal<{ parentTagId?: Id }> = ({
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register} name="name" label="Name" />
       <TextField ref={register} name="color" label="Color" />
-      <Checkbox
-        ref={register}
-        name="displayAtTopLevel"
-        label="Display at top level"
-      />
       <PrimaryButton text="Add" type="submitButton" />
     </FormModal>
   )

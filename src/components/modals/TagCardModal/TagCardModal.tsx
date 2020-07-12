@@ -1,9 +1,9 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Id } from "common"
-import { TagCardList } from "components/ActivitySection/CardList"
+import { TagCardList } from "components/CardList/TagCardList"
 import { Modal, useModal } from "components/modals/Modal"
-import { Tag } from "ducks/tag"
+import { Tag } from "redux/ducks/tag"
 import "twin.macro"
 import { useRef, FC } from "react"
 

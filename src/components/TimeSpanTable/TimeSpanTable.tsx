@@ -7,10 +7,14 @@ import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { Table } from "components/Table"
 import { TextField } from "components/TextField"
-import { useAppSelector } from "ducks/redux/rootReducer"
-import { useAppDispatch } from "ducks/redux/store"
-import { selectTagById } from "ducks/tag"
-import { addTestTimeSpans, addTimeSpan, selectTimespans } from "ducks/timeSpan"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { useAppDispatch } from "redux/redux/store"
+import { selectTagById } from "redux/ducks/tag"
+import {
+  addTestTimeSpans,
+  addTimeSpan,
+  selectTimespans,
+} from "redux/ducks/timeSpan"
 import { FC, Fragment } from "react"
 import { useForm } from "react-hook-form"
 import "twin.macro"
