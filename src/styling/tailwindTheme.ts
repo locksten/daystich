@@ -1,7 +1,7 @@
 import resolveConfig from "tailwindcss/resolveConfig"
 import tailwindConfig from "styling/tailwind.config"
 
-export type tailwindColorConfig = {
+export type TailwindColorConfig = {
   100: string
   200: string
   300: string
@@ -13,7 +13,7 @@ export type tailwindColorConfig = {
   900: string
 }
 
-export type tailwindSpacingConfig = {
+export type TailwindSpacingConfig = {
   "0": string
   "1": string
   "2": string
@@ -41,17 +41,19 @@ export const {
     colors: {
       black: string
       white: string
-      gray: tailwindColorConfig
-      red: tailwindColorConfig
-      orange: tailwindColorConfig
-      yellow: tailwindColorConfig
-      green: tailwindColorConfig
-      teal: tailwindColorConfig
-      blue: tailwindColorConfig
-      indigo: tailwindColorConfig
-      purple: tailwindColorConfig
-      pink: tailwindColorConfig
+      gray: TailwindColorConfig
+      red: TailwindColorConfig
+      orange: TailwindColorConfig
+      yellow: TailwindColorConfig
+      green: TailwindColorConfig
+      teal: TailwindColorConfig
+      blue: TailwindColorConfig
+      indigo: TailwindColorConfig
+      purple: TailwindColorConfig
+      pink: TailwindColorConfig
     }
-    spacing: tailwindSpacingConfig
+    spacing: TailwindSpacingConfig
   }
 } = resolveConfig(tailwindConfig)
+
+export type TwColorKey = keyof typeof twTheme.colors

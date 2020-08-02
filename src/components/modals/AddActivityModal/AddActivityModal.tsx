@@ -14,6 +14,7 @@ import { useAppDispatch } from "redux/redux/store"
 import { selectTagById } from "redux/ducks/tag"
 import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
+import { ColorPicker } from "components/ColorPicker"
 
 type Inputs = {
   name: string
@@ -49,7 +50,10 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
   return (
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register} name="name" label="Name" />
-      <TextField ref={register} name="color" label="Color" />
+      <div>
+        <label htmlFor={"tagIds"}>Color</label>
+        <Controller as={<ColorPicker />} name="color" control={control} />
+      </div>
       <div>
         <label htmlFor={"tagIds"}>Tags</label>
         <Controller

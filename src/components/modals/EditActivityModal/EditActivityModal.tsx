@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
-import { Checkbox } from "components/Checkbox"
+import { ColorPicker } from "components/ColorPicker"
 import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
@@ -9,16 +9,16 @@ import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { TagList } from "components/TagList"
 import { TextField } from "components/TextField"
-import { removeActivity, updateActivity } from "redux/ducks/shared/actions"
+import { Controller, useForm } from "react-hook-form"
 import {
   Activity,
   selectActivityById,
   useSelectActivitiesUsages,
 } from "redux/ducks/activity"
+import { removeActivity, updateActivity } from "redux/ducks/shared/actions"
+import { selectTagById, selectTagDescendantIds, Tag } from "redux/ducks/tag"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
-import { selectTagById, selectTagDescendantIds, Tag } from "redux/ducks/tag"
-import { Controller, useForm } from "react-hook-form"
 import "twin.macro"
 
 type Inputs = {
@@ -59,7 +59,10 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   return (
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register} name="name" label="Name" />
-      <TextField ref={register} name="color" label="Color" />
+      <div>
+        <label htmlFor={"tagIds"}>Color</label>
+        <Controller as={<ColorPicker />} name="color" control={control} />
+      </div>
       <div>
         <label htmlFor={"tagIds"}>Tags</label>
         <Controller
