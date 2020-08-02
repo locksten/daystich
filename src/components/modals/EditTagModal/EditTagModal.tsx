@@ -1,13 +1,14 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
+import { ColorPicker } from "components/ColorPicker"
 import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { TextField } from "components/TextField"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { removeTag, updateTag } from "redux/ducks/shared/actions"
 import {
   selectTagById,
@@ -28,7 +29,7 @@ const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   const dispatch = useAppDispatch()
   const tag = useAppSelector((s) => selectTagById(s, id))!
 
-  const { register, handleSubmit } = useForm<Inputs>({
+  const { control, register, handleSubmit } = useForm<Inputs>({
     defaultValues: {
       name: tag?.name,
       color: tag?.color,
@@ -45,7 +46,10 @@ const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   return (
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register({ required: true })} name="name" label="Name" />
-      <TextField ref={register} name="color" label="Color" />
+      <div>
+        <label htmlFor={"color"}>Color</label>
+        <Controller as={<ColorPicker />} name="color" control={control} />
+      </div>
       <SecondaryButton text="Delete" kind="danger" onClick={onRemoveTagClick} />
       <PrimaryButton text="Save" type="submitButton" />
       <RemoveTagModal />

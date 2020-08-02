@@ -51,7 +51,7 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register({ required: true })} name="name" label="Name" />
       <div>
-        <label htmlFor={"tagIds"}>Color</label>
+        <label htmlFor={"color"}>Color</label>
         <Controller as={<ColorPicker />} name="color" control={control} />
       </div>
       <div>

@@ -1,15 +1,16 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
+import { ColorPicker } from "components/ColorPicker"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { TextField } from "components/TextField"
+import { Controller, useForm } from "react-hook-form"
 import { addTag } from "redux/ducks/shared/actions"
+import { selectTagById, useSelectTagUsages } from "redux/ducks/tag"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
-import { selectTagById, useSelectTagUsages } from "redux/ducks/tag"
-import { useForm } from "react-hook-form"
 
 type Inputs = {
   name: string
@@ -24,7 +25,7 @@ const AddTagModal: Modal<{ parentTagId?: Id }> = ({
   const parentTag = useAppSelector((s) => selectTagById(s, parentTagId || ""))
   const { isInUse } = useSelectTagUsages(parentTagId)
 
-  const { register, handleSubmit } = useForm<Inputs>()
+  const { control, register, handleSubmit } = useForm<Inputs>()
   const onSubmit = ({ name, color }: Inputs) => {
     closeModal()
     dispatch(
@@ -39,7 +40,11 @@ const AddTagModal: Modal<{ parentTagId?: Id }> = ({
   return (
     <FormModal onSubmit={handleSubmit(onSubmit)}>
       <TextField ref={register({ required: true })} name="name" label="Name" />
-      <TextField ref={register} name="color" label="Color" />
+
+      <div>
+        <label htmlFor={"color"}>Color</label>
+        <Controller as={<ColorPicker />} name="color" control={control} />
+      </div>
       <PrimaryButton text="Add" type="submitButton" />
     </FormModal>
   )
