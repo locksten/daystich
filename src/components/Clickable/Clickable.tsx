@@ -1,5 +1,6 @@
 /** @jsx jsx */
-import { jsx, css } from "@emotion/core"
+import { jsx } from "@emotion/core"
+import { FocusRing } from "components/FocusRing"
 import { FC } from "react"
 import "twin.macro"
 
@@ -17,32 +18,31 @@ export const Clickable: FC<ClickableProps> = ({
   ...props
 }) =>
   type === "link" || (type === undefined && link !== undefined) ? (
-    <a
-      onClick={(e) => onClick?.(e)}
-      href={link}
-      tw="focus:outline-none focus:shadow-outline"
-      {...props}
-    >
-      {children}
-    </a>
+    <FocusRing>
+      <a
+        tw="focus:outline-none"
+        onClick={(e) => onClick?.(e)}
+        href={link}
+        {...props}
+      >
+        {children}
+      </a>
+    </FocusRing>
   ) : (
-    <button
-      onClick={(e) => onClick?.(e)}
-      type={
-        type === "submitButton"
-          ? "submit"
-          : type === "resetButton"
-          ? "reset"
-          : "button"
-      }
-      tw="focus:outline-none"
-      css={css`
-        :focus {
-          box-shadow: inset 0 0 0 3px rgba(66, 153, 225, 0.5);
+    <FocusRing>
+      <button
+        tw="focus:outline-none"
+        onClick={(e) => onClick?.(e)}
+        type={
+          type === "submitButton"
+            ? "submit"
+            : type === "resetButton"
+            ? "reset"
+            : "button"
         }
-      `}
-      {...props}
-    >
-      {children}
-    </button>
+        {...props}
+      >
+        {children}
+      </button>
+    </FocusRing>
   )

@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
+import { FocusRing } from "components/FocusRing"
 import { forwardRef } from "react"
 import "twin.macro"
 
@@ -16,14 +17,16 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       <label tw="pr-2" htmlFor={name}>
         {label}
       </label>
-      <input
-        tw="focus:outline-none focus:shadow-outline"
-        ref={ref}
-        name={name}
-        type="checkbox"
-        checked={checked}
-        defaultChecked={defaultChecked}
-      />
+      <FocusRing>
+        <input
+          tw="focus:outline-none"
+          ref={ref}
+          name={name}
+          type="checkbox"
+          checked={checked}
+          defaultChecked={defaultChecked}
+        />
+      </FocusRing>
     </div>
   ),
 )

@@ -59,7 +59,7 @@ export const Single: FC<{
     >
       <div
         css={css`
-          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white overflow-hidden focus:outline-none`};
+          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white overflow-hidden`};
           ${isTopLevel && tw`text-xl font-extrabold`};
           ${!isTopLevel && !isLeaf && tw`text-lg font-semibold`};
           ${!isTopLevel &&

@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import "twin.macro"
+import { FocusRing } from "components/FocusRing"
 import { forwardRef } from "react"
+import "twin.macro"
 
 type TextFieldProps = {
   name: string
@@ -36,18 +37,20 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             {label}
           </label>
         )}
-        <input
-          onChange={(e) => onChange?.(e.target.value)}
-          tw="bg-gray-200 rounded-md shadow-inner p-2 py-1 focus:outline-none focus:shadow-outline"
-          name={name}
-          ref={ref}
-          type={type}
-          value={value}
-          defaultValue={defaultValue}
-          placeholder={placeholder}
-          autoComplete={autocomplete ? "on" : "off"}
-          {...props}
-        />
+        <FocusRing alwaysShow>
+          <input
+            onChange={(e) => onChange?.(e.target.value)}
+            tw="bg-gray-200 rounded-md shadow-inner p-2 py-1 focus:outline-none"
+            name={name}
+            ref={ref}
+            type={type}
+            value={value}
+            defaultValue={defaultValue}
+            placeholder={placeholder}
+            autoComplete={autocomplete ? "on" : "off"}
+            {...props}
+          />
+        </FocusRing>
       </div>
     )
   },
