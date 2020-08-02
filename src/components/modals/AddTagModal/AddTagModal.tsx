@@ -38,7 +38,7 @@ const AddTagModal: Modal<{ parentTagId?: Id }> = ({
 
   return (
     <FormModal onSubmit={handleSubmit(onSubmit)}>
-      <TextField ref={register} name="name" label="Name" />
+      <TextField ref={register({ required: true })} name="name" label="Name" />
       <TextField ref={register} name="color" label="Color" />
       <PrimaryButton text="Add" type="submitButton" />
     </FormModal>
