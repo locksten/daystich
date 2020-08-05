@@ -35,7 +35,7 @@
     "react-select": "^3.1.0",
     "redux-persist": "^6.0.0",
     "reselect": "^4.0.0",
-    "twin.macro": "^1.2.0",
+    "twin.macro": "^1.7.0",
     "typescript": "^3.7.5"
   },
   "scripts": {
@@ -48,7 +48,11 @@
   },
   "babelMacros": {
     "twin": {
-      "config": "src/styling/tailwind.config.js"
+      "config": "src/styling/tailwind.config.js",
+      "preset": "emotion",
+      "debugProp": true,
+      "debugPlugins": false,
+      "debug": false
     }
   },
   "husky": {

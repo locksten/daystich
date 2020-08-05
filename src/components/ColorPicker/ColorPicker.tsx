@@ -3,7 +3,7 @@ import { css, jsx } from "@emotion/core"
 import { FC } from "react"
 import { CirclePicker } from "react-color"
 import "twin.macro"
-import { twTheme, TwColorKey, TailwindColorConfig } from "styling/tailwindTheme"
+import { colorPalette } from "styling/colorPalette"
 
 export const ColorPicker: FC<{
   value?: string
@@ -26,31 +26,8 @@ export const ColorPicker: FC<{
         onChangeComplete={(color) => {
           onChange?.(color.hex)
         }}
-        colors={palette}
+        colors={colorPalette}
       />
     </div>
   )
 }
-
-const generatePalette = () => {
-  const hues: TwColorKey[] = [
-    "gray",
-    "red",
-    "orange",
-    "yellow",
-    "green",
-    "teal",
-    "blue",
-    "indigo",
-    "purple",
-    "pink",
-  ]
-  const values: (keyof TailwindColorConfig)[] = [300, 500, 700]
-  return hues.flatMap((hue, idx) =>
-    (idx % 2 === 0 ? values : values.reverse()).map(
-      (value) => twTheme.colors[hue][value],
-    ),
-  )
-}
-
-const palette = generatePalette()
