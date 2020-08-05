@@ -1,14 +1,16 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
-import { ColorPicker } from "components/ColorPicker"
+import { RHFColorPicker } from "components/ColorPicker"
+import { FormErrors } from "components/FormErrors"
+import { FormLabel } from "components/FormLabel"
 import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
-import { TextField } from "components/TextField"
-import { Controller, useForm } from "react-hook-form"
+import { RHFTextField } from "components/TextField"
+import { useFormWithContext } from "hooks/useFormWithContext"
 import { removeTag, updateTag } from "redux/ducks/shared/actions"
 import {
   selectTagById,
@@ -20,38 +22,50 @@ import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
 import "twin.macro"
 
-export type Inputs = {
-  name: string
-  color: Color
-}
-
 const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   const dispatch = useAppDispatch()
   const tag = useAppSelector((s) => selectTagById(s, id))!
 
-  const { control, register, handleSubmit } = useForm<Inputs>({
+  const { RemoveTagModal, onRemoveTagClick } = useRemoveTag(tag)
+
+  const onSubmit = ({ name, color }: Inputs) => {
+    closeModal()
+    dispatch(
+      updateTag({
+        id,
+        name,
+        color,
+      }),
+    )
+  }
+
+  const { Form, errors } = useFormWithContext<Inputs>(onSubmit, {
     defaultValues: {
-      name: tag?.name,
+      name: tag.name,
       color: tag?.color,
     },
   })
 
-  const onSubmit = (inputs: Inputs) => {
-    closeModal()
-    dispatch(updateTag({ ...inputs, id }))
+  type Inputs = {
+    name: string
+    color?: Color
   }
 
-  const { RemoveTagModal, onRemoveTagClick } = useRemoveTag(tag)
-
   return (
-    <FormModal onSubmit={handleSubmit(onSubmit)}>
-      <TextField ref={register({ required: true })} name="name" label="Name" />
-      <div>
-        <label htmlFor={"color"}>Color</label>
-        <Controller as={<ColorPicker />} name="color" control={control} />
-      </div>
-      <SecondaryButton text="Delete" kind="danger" onClick={onRemoveTagClick} />
-      <PrimaryButton text="Save" type="submitButton" />
+    <FormModal>
+      <Form tw="grid gap-2">
+        <FormLabel name="name" label="Name">
+          <RHFTextField name="name" rules={{ required: "Name is required" }} />
+        </FormLabel>
+        <RHFColorPicker name="color" />
+        <SecondaryButton
+          text="Delete"
+          kind="danger"
+          onClick={onRemoveTagClick}
+        />
+        <PrimaryButton text="Save" type="submitButton" />
+        <FormErrors errors={errors} />
+      </Form>
       <RemoveTagModal />
     </FormModal>
   )

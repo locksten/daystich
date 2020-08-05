@@ -1,15 +1,17 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
-import { ColorPicker } from "components/ColorPicker"
+import { RHFColorPicker } from "components/ColorPicker"
+import { FormErrors } from "components/FormErrors"
+import { FormLabel } from "components/FormLabel"
 import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
-import { TagList } from "components/TagList"
-import { TextField } from "components/TextField"
-import { Controller, useForm } from "react-hook-form"
+import { RHFTagList } from "components/TagList"
+import { RHFTextField } from "components/TextField"
+import { useFormWithContext } from "hooks/useFormWithContext"
 import {
   Activity,
   selectActivityById,
@@ -21,24 +23,15 @@ import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
 import "twin.macro"
 
-type Inputs = {
-  name: string
-  tagIds: Id[]
-  color: Color
-}
-
 const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   const dispatch = useAppDispatch()
   const activity = useAppSelector((s) => selectActivityById(s, id))!
   const tag = useAppSelector((s) => selectTagById(s, id))!
 
-  const { control, register, handleSubmit } = useForm<Inputs>({
-    defaultValues: {
-      name: tag?.name,
-      color: tag?.color,
-      tagIds: activity.tagIds,
-    },
-  })
+  const { RemoveActivityModal, onRemoveActivityClick } = useRemoveActivity(
+    activity,
+    tag,
+  )
 
   const onSubmit = ({ name, color, tagIds }: Inputs) => {
     closeModal()
@@ -51,33 +44,39 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
     )
   }
 
-  const { RemoveActivityModal, onRemoveActivityClick } = useRemoveActivity(
-    activity,
-    tag,
-  )
+  const { Form, errors } = useFormWithContext<Inputs>(onSubmit, {
+    defaultValues: {
+      name: tag.name,
+      color: tag?.color,
+      tagIds: activity.tagIds,
+    },
+  })
+
+  type Inputs = {
+    name: string
+    tagIds: Id[]
+    color?: Color
+  }
 
   return (
-    <FormModal onSubmit={handleSubmit(onSubmit)}>
-      <TextField ref={register({ required: true })} name="name" label="Name" />
-      <div>
-        <label htmlFor={"color"}>Color</label>
-        <Controller as={<ColorPicker />} name="color" control={control} />
-      </div>
-      <div>
-        <label htmlFor={"tagIds"}>Tags</label>
-        <Controller
-          as={<TagList wrap={true} />}
-          name="tagIds"
-          control={control}
+    <FormModal>
+      <Form tw="grid gap-2">
+        <FormLabel name="name" label="Name">
+          <RHFTextField name="name" rules={{ required: "Name is required" }} />
+        </FormLabel>
+        <RHFColorPicker name="color" />
+        <FormLabel name="tagIds" label="Tags">
+          <RHFTagList name="tagIds" />
+        </FormLabel>
+        <SecondaryButton
+          text="Delete"
+          kind="danger"
+          onClick={onRemoveActivityClick}
         />
-      </div>
-      <SecondaryButton
-        text="Delete"
-        kind="danger"
-        onClick={onRemoveActivityClick}
-      />
-      <PrimaryButton text="Save" type="submitButton" />
-      <RemoveActivityModal />
+        <PrimaryButton text="Save" type="submitButton" />
+        <FormErrors errors={errors} />
+        <RemoveActivityModal />
+      </Form>
     </FormModal>
   )
 }

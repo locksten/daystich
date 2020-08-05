@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
+import { RHFElementWrapper } from "hooks/RHFElementWrapper"
 import { FocusRing } from "components/FocusRing"
 import { forwardRef } from "react"
 import "twin.macro"
@@ -55,3 +56,5 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     )
   },
 )
+
+export const RHFTextField = RHFElementWrapper(TextField)

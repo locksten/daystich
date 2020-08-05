@@ -1,13 +1,15 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { Color, Id } from "common"
-import { ColorPicker } from "components/ColorPicker"
+import { RHFColorPicker } from "components/ColorPicker"
+import { FormErrors } from "components/FormErrors"
+import { FormLabel } from "components/FormLabel"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
-import { TagList } from "components/TagList"
-import { TextField } from "components/TextField"
-import { Controller, useForm } from "react-hook-form"
+import { RHFTagList } from "components/TagList"
+import { RHFTextField } from "components/TextField"
+import { useFormWithContext } from "hooks/useFormWithContext"
 import { isRootActivityId } from "redux/common"
 import { useSelectActivityUsages } from "redux/ducks/activity"
 import { addActivity } from "redux/ducks/shared/actions"
@@ -15,12 +17,6 @@ import { selectTagById } from "redux/ducks/tag"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
 import "twin.macro"
-
-type Inputs = {
-  name: string
-  tagIds: Id[]
-  color: Color
-}
 
 const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
   parentTagId,
@@ -30,7 +26,6 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
   const parentTag = useAppSelector((s) => selectTagById(s, parentTagId || ""))
   const { isInUse } = useSelectActivityUsages(parentTagId)
 
-  const { control, register, handleSubmit } = useForm<Inputs>()
   const onSubmit = ({ name, color, tagIds }: Inputs) => {
     closeModal()
     dispatch(
@@ -47,23 +42,32 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
     )
   }
 
+  const { Form, errors } = useFormWithContext<Inputs>(onSubmit)
+
+  type Inputs = {
+    name: string
+    tagIds: Id[]
+    color?: Color
+  }
+
   return (
-    <FormModal onSubmit={handleSubmit(onSubmit)}>
-      <TextField ref={register({ required: true })} name="name" label="Name" />
-      <div>
-        <label htmlFor={"color"}>Color</label>
-        <Controller as={<ColorPicker />} name="color" control={control} />
-      </div>
-      <div>
-        <label htmlFor={"tagIds"}>Tags</label>
-        <Controller
-          as={<TagList wrap={true} />}
-          name="tagIds"
-          control={control}
-          defaultValue={[]}
-        />
-      </div>
-      <PrimaryButton text="Add" type="submitButton" />
+    <FormModal>
+      <Form tw="grid gap-2">
+        <FormLabel name="name" label="Name">
+          <RHFTextField
+            name="name"
+            rules={{
+              required: "Name is required",
+            }}
+          />
+        </FormLabel>
+        <RHFColorPicker name="color" />
+        <FormLabel name="tagIds" label="Tags">
+          <RHFTagList name="tagIds" />
+        </FormLabel>
+        <PrimaryButton text="Add" type="submitButton" />
+        <FormErrors errors={errors} />
+      </Form>
     </FormModal>
   )
 }

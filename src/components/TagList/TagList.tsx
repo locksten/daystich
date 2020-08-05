@@ -6,14 +6,15 @@ import { TagChip } from "components/TagChip"
 import { FC, Fragment } from "react"
 import "twin.macro"
 import tw from "twin.macro"
+import { RHFControlledElementWrapper } from "hooks/RHFElementWrapper"
 import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 
 export const TagList: FC<{
   value?: Id[]
   onChange?: (ids: Id[]) => void
   showAddButton?: "onGroupHover" | "always"
-  wrap: boolean
-}> = ({ value: ids = [], onChange, showAddButton = "always", wrap }) => {
+  wrap?: boolean
+}> = ({ value: ids = [], onChange, showAddButton = "always", wrap = true }) => {
   const tagSelectModal = useCardListSelectModal()({
     type: "tag",
     onClick: (tag) => {
@@ -54,3 +55,8 @@ export const TagList: FC<{
     </Fragment>
   )
 }
+
+export const RHFTagList = RHFControlledElementWrapper({
+  Element: TagList,
+  defaultValue: [],
+})

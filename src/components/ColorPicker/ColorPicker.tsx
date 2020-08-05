@@ -1,9 +1,10 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
+import { RHFControlledElementWrapper } from "hooks/RHFElementWrapper"
 import { FC } from "react"
 import { CirclePicker } from "react-color"
-import "twin.macro"
 import { colorPalette } from "styling/colorPalette"
+import "twin.macro"
 
 export const ColorPicker: FC<{
   value?: string
@@ -31,3 +32,8 @@ export const ColorPicker: FC<{
     </div>
   )
 }
+
+export const RHFColorPicker = RHFControlledElementWrapper({
+  Element: ColorPicker,
+  defaultValue: "",
+})

@@ -4,12 +4,13 @@ import { Id } from "common"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { SecondaryButton } from "components/SecondaryButton"
-import { moveActivity, moveTag } from "redux/ducks/shared/actions"
+import { isRootActivity, rootActivityId } from "redux/common"
 import { selectActivityById } from "redux/ducks/activity"
-import { rootActivityId, isRootActivity } from "redux/common"
+import { moveActivity, moveTag } from "redux/ducks/shared/actions"
+import { isRootTag, selectTagById } from "redux/ducks/tag"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
-import { selectTagById, isRootTag } from "redux/ducks/tag"
+import "twin.macro"
 
 const TopLevelReturnDetachModal: Modal<{ id: Id }> = ({ closeModal, id }) => {
   const dispatch = useAppDispatch()
@@ -56,7 +57,7 @@ const TopLevelReturnDetachModal: Modal<{ id: Id }> = ({ closeModal, id }) => {
     )
 
   return (
-    <FormModal>
+    <FormModal tw="grid gap-2">
       <SecondaryButton
         text={`Return ${tag.name} to ${parent.name}`}
         onClick={() => {
