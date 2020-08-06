@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { useAddActivityModal } from "components/modals/AddActivityModal"
 import { useEditActivityModal } from "components/modals/EditActivityModal"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
-import { selectMainActivityTreeList } from "redux/ducks/shared/mainTagTreeSelectors"
+import { selectMainActivityTreeList } from "redux/ducks/shared/treeNodeSelectors"
 import { addTimeSpanNow } from "redux/ducks/timeSpan"
-import { useEditMode } from "hooks/editMode"
+import { useEditMode } from "common/editMode"
 import { FC } from "react"
 import "twin.macro"
 import { CardList, CardListConfig } from "./CardList"
@@ -19,7 +19,7 @@ export const ActivityCardList: FC<{
   singleConfig?: SingleConfig
 }> = ({ config, singleConfig, ...props }) => {
   const dispatch = useAppDispatch()
-  const { editMode } = useEditMode()
+  const { isEditMode } = useEditMode()
 
   const ActivitySide = undefined
 
@@ -30,7 +30,7 @@ export const ActivityCardList: FC<{
   }
 
   const defaultSingleConfig: Partial<SingleConfig> = {
-    RenderSide: editMode ? ActivityEditSide : ActivitySide,
+    RenderSide: isEditMode ? ActivityEditSide : ActivitySide,
     onLeafClick: ({ activity }) =>
       dispatch(addTimeSpanNow({ activityId: activity!.id })),
   }

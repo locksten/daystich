@@ -1,5 +1,5 @@
 import { TreeNode } from "redux/ducks/tag"
-import { Id } from "common"
+import { Id } from "common/common"
 
 export type Filters = {
   byName?: string

@@ -1,9 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { Clickable } from "components/Clickable"
 import { TreeNode } from "redux/ducks/tag"
-import { useEditMode } from "hooks/editMode"
+import { useEditMode } from "common/editMode"
 import { FC } from "react"
 import "twin.macro"
 import tw from "twin.macro"
@@ -28,11 +28,11 @@ export const Single: FC<{
   dragHandleProps,
   dropProps,
 }) => {
-  const { editMode } = useEditMode()
+  const { isEditMode } = useEditMode()
   const isLeaf = node.children.length === 0
 
   const Name: FC<{}> = ({ children, ...props }) =>
-    editMode ? (
+    isEditMode ? (
       <div {...props}>{children}</div>
     ) : isLeaf && !node.hasTopLevelChildren ? (
       <Clickable onClick={() => onLeafClick?.(node)} {...props}>

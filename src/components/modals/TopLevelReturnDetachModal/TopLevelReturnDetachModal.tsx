@@ -1,16 +1,19 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
 import { SecondaryButton } from "components/SecondaryButton"
-import { isRootActivity, rootActivityId } from "redux/common"
-import { selectActivityById } from "redux/ducks/activity"
 import { moveActivity, moveTag } from "redux/ducks/shared/actions"
 import { isRootTag, selectTagById } from "redux/ducks/tag"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { useAppDispatch } from "redux/redux/store"
 import "twin.macro"
+import {
+  isRootActivity,
+  rootActivityId,
+} from "redux/ducks/shared/treeNodeRoots"
+import { selectActivityById } from "redux/ducks/activity"
 
 const TopLevelReturnDetachModal: Modal<{ id: Id }> = ({ closeModal, id }) => {
   const dispatch = useAppDispatch()

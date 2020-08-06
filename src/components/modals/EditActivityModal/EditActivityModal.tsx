@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Color, Id } from "common"
+import { Color, Id } from "common/common"
 import { RHFColorPicker } from "components/ColorPicker"
 import { FormErrors } from "components/FormErrors"
 import { FormLabel } from "components/FormLabel"
@@ -11,7 +11,7 @@ import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { RHFTagList } from "components/TagList"
 import { RHFTextField } from "components/TextField"
-import { useFormWithContext } from "hooks/useFormWithContext"
+import { useFormWithContext } from "common/useFormWithContext"
 import {
   Activity,
   selectActivityById,

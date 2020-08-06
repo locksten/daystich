@@ -1,6 +1,6 @@
 /** @jsx jsx */
-import { useDnd } from "hooks/dragAndDrop"
-import { useEditMode } from "hooks/editMode"
+import { useDnd } from "common/useDragAndDrop"
+import { useEditMode } from "common/editMode"
 import { useSelectActivityUsages } from "redux/ducks/activity"
 import { moveActivity, moveTag } from "redux/ducks/shared/actions"
 import {
@@ -18,7 +18,7 @@ export const useTreeNodeDnd = (
   element: "list" | "single",
   hasChildren?: boolean,
 ) => {
-  const { editMode } = useEditMode()
+  const { isEditMode } = useEditMode()
   const dispatch = useAppDispatch()
 
   const { isInUse: activityIsInUse } = useSelectActivityUsages(
@@ -31,7 +31,7 @@ export const useTreeNodeDnd = (
   const { dndDragHandleProps, dndProps } = useDnd<TreeNode>({
     type: node.activity ? "activity" : "tag",
     item: node,
-    canDrag: () => editMode,
+    canDrag: () => isEditMode,
     onDrop: (node, destination, dropSide) => {
       dropSide =
         element === "single"

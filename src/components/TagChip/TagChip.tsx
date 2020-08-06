@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { selectTagById, selectTagColor } from "redux/ducks/tag"
 import { FC } from "react"

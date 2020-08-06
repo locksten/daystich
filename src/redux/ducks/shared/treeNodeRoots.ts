@@ -1,7 +1,7 @@
-import { Id } from "common"
-import { Activity } from "redux/ducks/activity"
+import { Id } from "common/common"
 import { Tag } from "redux/ducks/tag"
 import { defaultActivityTagColor } from "styling/colorPalette"
+import { Activity } from "redux/ducks/activity"
 
 export const rootActivityId = "rootActivityId-xiftrK"
 

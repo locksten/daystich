@@ -1,7 +1,10 @@
 import { createEntityAdapter, createSlice, EntityState } from "@reduxjs/toolkit"
-import { Color, Id } from "common"
+import { Color, Id } from "common/common"
 import createCachedSelector from "re-reselect"
-import { isRootActivityId, rootActivityTag } from "redux/common"
+import {
+  isRootActivityId,
+  rootActivityTag,
+} from "redux/ducks/shared/treeNodeRoots"
 import { Activity, selectActivityIdsByTagIds } from "redux/ducks/activity"
 import {
   addActivity,

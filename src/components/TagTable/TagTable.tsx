@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { Card } from "components/Card"
 import { Table } from "components/Table"
 import { useAppSelector } from "redux/redux/rootReducer"

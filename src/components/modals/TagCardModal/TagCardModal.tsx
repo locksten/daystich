@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { TagCardList } from "components/CardList/TagCardList"
 import { Modal, useModal } from "components/modals/Modal"
 import { Tag } from "redux/ducks/tag"

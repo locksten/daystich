@@ -1,5 +1,5 @@
 import { EntityAdapter, EntityState } from "@reduxjs/toolkit"
-import { Id } from "common"
+import { Id } from "common/common"
 
 type Orderable = { id: Id; ordering: number }
 

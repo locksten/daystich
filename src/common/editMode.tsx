@@ -3,7 +3,7 @@ import { jsx } from "@emotion/core"
 import { createContext, FC, useState, useContext } from "react"
 
 const EditModeContext = createContext({
-  editMode: false,
+  isEditMode: false,
   enterEditMode: () => {},
   exitEditMode: () => {},
   toggleEditMode: () => {},
@@ -14,16 +14,16 @@ export const useEditMode = () => {
 }
 
 export const useEditModeProvider = (initialState = false) => {
-  const [editMode, setEditMode] = useState(initialState)
-  const enterEditMode = () => setEditMode(true)
-  const exitEditMode = () => setEditMode(false)
-  const toggleEditMode = editMode ? exitEditMode : enterEditMode
+  const [isEditMode, setIsEditMode] = useState(initialState)
+  const enterEditMode = () => setIsEditMode(true)
+  const exitEditMode = () => setIsEditMode(false)
+  const toggleEditMode = isEditMode ? exitEditMode : enterEditMode
 
   const EditModeProvider: FC<{}> = ({ children }) => {
     return (
       <EditModeContext.Provider
         value={{
-          editMode,
+          isEditMode,
           enterEditMode,
           exitEditMode,
           toggleEditMode,
@@ -36,7 +36,7 @@ export const useEditModeProvider = (initialState = false) => {
 
   return {
     EditModeProvider,
-    editMode,
+    isEditMode,
     enterEditMode,
     exitEditMode,
     toggleEditMode,

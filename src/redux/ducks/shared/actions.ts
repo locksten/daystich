@@ -1,7 +1,7 @@
 import { createAction, nanoid } from "@reduxjs/toolkit"
 import { Activity } from "redux/ducks/activity"
 import { Tag } from "redux/ducks/tag"
-import { Id } from "common"
+import { Id } from "common/common"
 
 export declare type AppPrepareAction<A, P> = (
   arg: A,

@@ -6,7 +6,7 @@ import {
   nanoid,
   PayloadAction,
 } from "@reduxjs/toolkit"
-import { Duration, Id, Timestamp } from "common"
+import { Duration, Id, Timestamp } from "common/common"
 import {
   AppPrepareAction,
   removeActivity,

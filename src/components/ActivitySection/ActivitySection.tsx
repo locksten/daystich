@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { Card } from "components/Card"
 import { ActivityCardList } from "components/CardList/ActivityCardList"
 import { Clickable } from "components/Clickable"
@@ -8,7 +8,6 @@ import { IconButton } from "components/IconButton"
 import { useAddActivityModal } from "components/modals/AddActivityModal"
 import { useAddTagModal } from "components/modals/AddTagModal"
 import { useTagCardModal } from "components/modals/TagCardModal"
-import { rootActivityId } from "redux/common"
 import { selectMainTagListEntryIds } from "redux/ducks/mainTagList"
 import { useAppSelector } from "redux/redux/rootReducer"
 import {
@@ -16,10 +15,11 @@ import {
   selectTagChildrenIds,
   selectTagColor,
 } from "redux/ducks/tag"
-import { useEditMode, useEditModeProvider } from "hooks/editMode"
+import { useEditMode, useEditModeProvider } from "common/editMode"
 import { FC, Fragment, useState } from "react"
 import "twin.macro"
 import tw from "twin.macro"
+import { rootActivityId } from "redux/ducks/shared/treeNodeRoots"
 
 export const ActivitySection: FC = () => {
   const [selectedTagIdState, setSelectedTagId] = useState<Id | undefined>(
@@ -34,7 +34,7 @@ export const ActivitySection: FC = () => {
     parentTagId: rootActivityId,
   })
 
-  const { EditModeProvider, editMode } = useEditModeProvider()
+  const { EditModeProvider, isEditMode } = useEditModeProvider()
 
   return (
     <EditModeProvider>
@@ -43,7 +43,7 @@ export const ActivitySection: FC = () => {
         <ActivityCardList
           config={{ filters: { byActivityTagId: selectedTagId } }}
         />
-        {editMode && (
+        {isEditMode && (
           <IconButton
             onClick={addActivityModal.open}
             background="circle"
@@ -62,7 +62,7 @@ const RootTags: FC<{ onClick: (id?: Id) => void; selectedTagId?: Id }> = ({
 }) => {
   const ids = useAppSelector(selectMainTagListEntryIds)
 
-  const { editMode, toggleEditMode } = useEditMode()
+  const { isEditMode, toggleEditMode } = useEditMode()
 
   const addTagModal = useAddTagModal()({
     parentTagId: undefined,
@@ -93,11 +93,11 @@ const RootTags: FC<{ onClick: (id?: Id) => void; selectedTagId?: Id }> = ({
           </Margin>
         ))}
         <Margin>
-          <CardButton onClick={toggleEditMode} isSelected={editMode}>
-            {editMode ? "Done" : "Edit"}
+          <CardButton onClick={toggleEditMode} isSelected={isEditMode}>
+            {isEditMode ? "Done" : "Edit"}
           </CardButton>
         </Margin>
-        {editMode && (
+        {isEditMode && (
           <Margin>
             <IconButton
               onClick={addTagModal.open}
@@ -122,7 +122,7 @@ const RootTag: FC<{
   const color = useAppSelector((s) => selectTagColor(s, id))
   const isLeaf =
     useAppSelector((s) => selectTagChildrenIds(s, tag.id)).length === 0
-  const { editMode } = useEditMode()
+  const { isEditMode } = useEditMode()
   const tagCardModal = useTagCardModal({
     id: id,
     onClick: (tag) => onClick(tag.id),
@@ -134,7 +134,7 @@ const RootTag: FC<{
       <tagCardModal.Parent>
         <CardButton
           onClick={() =>
-            isLeaf && !editMode ? onClick(id) : tagCardModal.open()
+            isLeaf && !isEditMode ? onClick(id) : tagCardModal.open()
           }
           isSelected={isSelected}
           css={{ backgroundColor: color }}

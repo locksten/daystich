@@ -1,11 +1,11 @@
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit"
-import { Id } from "common"
+import { Id } from "common/common"
 import {
   addActivity,
   moveActivity,
   removeActivity,
 } from "redux/ducks/shared/actions"
-import { isRootActivityId } from "redux/common"
+import { isRootActivityId } from "redux/ducks/shared/treeNodeRoots"
 import {
   removeManyOrderables,
   removeOneOrderable,

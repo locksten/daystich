@@ -1,14 +1,14 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { useAddTagModal } from "components/modals/AddTagModal"
 import { useEditTagModal } from "components/modals/EditTagModal"
 import { useAppSelector } from "redux/redux/rootReducer"
 import {
   selectMainTagTreeList,
   selectTagTreeList,
-} from "redux/ducks/shared/mainTagTreeSelectors"
-import { useEditMode } from "hooks/editMode"
+} from "redux/ducks/shared/treeNodeSelectors"
+import { useEditMode } from "common/editMode"
 import { FC } from "react"
 import "twin.macro"
 import { CardList, CardListConfig } from "./CardList"
@@ -20,7 +20,7 @@ export const TagCardList: FC<{
   singleConfig?: SingleConfig
   id?: Id
 }> = ({ config, singleConfig, id, ...props }) => {
-  const { editMode } = useEditMode()
+  const { isEditMode } = useEditMode()
 
   const TagSide = undefined
 
@@ -31,7 +31,7 @@ export const TagCardList: FC<{
   }
 
   const defaultSingleConfig: Partial<SingleConfig> = {
-    RenderSide: editMode ? TagEditSide : TagSide,
+    RenderSide: isEditMode ? TagEditSide : TagSide,
   }
 
   const nodes = useAppSelector((s) =>

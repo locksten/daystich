@@ -10,7 +10,7 @@ import {
   TimeSpan,
   updateTimespan,
 } from "redux/ducks/timeSpan"
-import { useIntervalState } from "hooks/useIntervalState"
+import { useIntervalState } from "common/useIntervalState"
 import { FC } from "react"
 import "twin.macro"
 import humanizeDuration from "humanize-duration"

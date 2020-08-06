@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
 import { nanoid } from "@reduxjs/toolkit"
-import { formatTime, Id, shortHumanizer } from "common"
+import { formatTime, Id, shortHumanizer } from "common/common"
 import { Card } from "components/Card"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"

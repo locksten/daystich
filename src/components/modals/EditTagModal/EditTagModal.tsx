@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Color, Id } from "common"
+import { Color, Id } from "common/common"
 import { RHFColorPicker } from "components/ColorPicker"
 import { FormErrors } from "components/FormErrors"
 import { FormLabel } from "components/FormLabel"
@@ -10,7 +10,7 @@ import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { SecondaryButton } from "components/SecondaryButton"
 import { RHFTextField } from "components/TextField"
-import { useFormWithContext } from "hooks/useFormWithContext"
+import { useFormWithContext } from "common/useFormWithContext"
 import { removeTag, updateTag } from "redux/ducks/shared/actions"
 import {
   selectTagById,

@@ -1,6 +1,4 @@
-import { Id } from "common"
-import { rootActivityId } from "redux/common"
-import { selectActivities } from "redux/ducks/activity"
+import { Id } from "common/common"
 import { addActivity, addTag } from "redux/ducks/shared/actions"
 import { addTimeSpanNow } from "redux/ducks/timeSpan"
 import { AppStore } from "redux/redux/store"
@@ -10,6 +8,8 @@ import {
   finishNewUserFirstLoad,
 } from "redux/ducks/meta"
 import { selectTags } from "redux/ducks/tag"
+import { rootActivityId } from "redux/ducks/shared/treeNodeRoots"
+import { selectActivities } from "redux/ducks/activity"
 
 export const createInitialState = (store: AppStore) => {
   type MakeActivityArgs = {

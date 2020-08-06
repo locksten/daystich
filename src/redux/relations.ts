@@ -1,4 +1,4 @@
-import { Id } from "common"
+import { Id } from "common/common"
 import { EntityState, EntityAdapter } from "@reduxjs/toolkit"
 
 export const removeOneToManyRelation = <Entity extends { id: Id }>(

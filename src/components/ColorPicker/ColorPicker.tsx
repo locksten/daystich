@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { RHFControlledElementWrapper } from "hooks/RHFElementWrapper"
+import { RHFControlledElementWrapper } from "common/RHFElementWrapper"
 import { FC } from "react"
 import { CirclePicker } from "react-color"
 import { colorPalette } from "styling/colorPalette"

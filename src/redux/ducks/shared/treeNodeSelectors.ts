@@ -1,4 +1,4 @@
-import { Id } from "common"
+import { Id } from "common/common"
 import { selectActivityDictionary } from "redux/ducks/activity"
 import {
   mainActivityListAdapter,

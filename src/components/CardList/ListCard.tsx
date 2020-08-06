@@ -3,10 +3,10 @@ import { css, jsx } from "@emotion/core"
 import { Card } from "components/Card"
 import { Clickable } from "components/Clickable"
 import { useTopLevelReturnDetachModal } from "components/modals/TopLevelReturnDetachModal"
-import { isRootActivityId } from "redux/common"
+import { isRootActivityId } from "redux/ducks/shared/treeNodeRoots"
 import { useAppSelector } from "redux/redux/rootReducer"
 import { selectTagById, selectTagColor, TreeNode } from "redux/ducks/tag"
-import { useEditMode } from "hooks/editMode"
+import { useEditMode } from "common/editMode"
 import { FC, Fragment } from "react"
 import "twin.macro"
 import { List } from "./List"
@@ -14,7 +14,7 @@ import { Single, SingleConfig } from "./Single"
 import { useTreeNodeDnd } from "./useTreeNodeDnd"
 
 const TopLevelIndicator: FC<{ node: TreeNode }> = ({ node }) => {
-  const { editMode } = useEditMode()
+  const { isEditMode } = useEditMode()
   const isNaturallyTopLevel =
     isRootActivityId(node.tag.parentTagId) || node.tag.parentTagId === undefined
   const parent = useAppSelector((s) =>
@@ -24,7 +24,7 @@ const TopLevelIndicator: FC<{ node: TreeNode }> = ({ node }) => {
 
   return (
     <Fragment>
-      {editMode && !isNaturallyTopLevel && (
+      {isEditMode && !isNaturallyTopLevel && (
         <div tw="flex">
           <Clickable tw="text-white text-sm" onClick={modal.open}>
             {parent!.name}

@@ -1,5 +1,5 @@
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit"
-import { Id } from "common"
+import { Id } from "common/common"
 import createCachedSelector from "re-reselect"
 import {
   addActivity,
@@ -8,7 +8,7 @@ import {
   removeTag,
   updateActivity,
 } from "redux/ducks/shared/actions"
-import { rootActivity } from "redux/common"
+import { rootActivity } from "redux/ducks/shared/treeNodeRoots"
 import { selectTimespanIdsByActivityIds } from "redux/ducks/timeSpan"
 import { RootState, useAppSelector } from "redux/redux/rootReducer"
 import { removeOneToManyRelation } from "redux/relations"

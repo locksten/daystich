@@ -1,12 +1,12 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { Id } from "common"
+import { Id } from "common/common"
 import { IconButton } from "components/IconButton"
 import { TagChip } from "components/TagChip"
 import { FC, Fragment } from "react"
 import "twin.macro"
 import tw from "twin.macro"
-import { RHFControlledElementWrapper } from "hooks/RHFElementWrapper"
+import { RHFControlledElementWrapper } from "common/RHFElementWrapper"
 import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 
 export const TagList: FC<{

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { RHFElementWrapper } from "hooks/RHFElementWrapper"
+import { RHFElementWrapper } from "common/RHFElementWrapper"
 import { FocusRing } from "components/FocusRing"
 import { forwardRef } from "react"
 import "twin.macro"
