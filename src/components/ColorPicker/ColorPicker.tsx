@@ -8,7 +8,7 @@ import "twin.macro"
 
 export const ColorPicker: FC<{
   value?: string
-  onChange?: (color: string) => void
+  onChange?: (color?: string) => void
 }> = ({ value, onChange }) => {
   const spacing = 6
 
@@ -24,8 +24,8 @@ export const ColorPicker: FC<{
         circleSize={30}
         width={"100%"}
         color={value}
-        onChangeComplete={(color) => {
-          onChange?.(color.hex)
+        onChangeComplete={({ hex }) => {
+          onChange?.(hex === value ? undefined : hex)
         }}
         colors={colorPalette}
       />
@@ -35,5 +35,5 @@ export const ColorPicker: FC<{
 
 export const RHFColorPicker = RHFControlledElementWrapper({
   Element: ColorPicker,
-  defaultValue: "",
+  defaultValue: undefined,
 })
