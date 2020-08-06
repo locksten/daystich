@@ -1,8 +1,9 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit"
+import { useDispatch } from "react-redux"
+import { persistReducer, persistStore } from "redux-persist"
+import { createInitialState } from "redux/initializeStateForNewUser"
 import { profilingMiddleware } from "redux/redux/profilingMiddleware"
 import rootReducer, { persistConfig } from "redux/redux/rootReducer"
-import { useDispatch } from "react-redux"
-import { persistStore, persistReducer } from "redux-persist"
 
 const middleware = getDefaultMiddleware({
   serializableCheck: {
@@ -19,7 +20,13 @@ const store = configureStore({
   middleware: middleware,
 })
 
-export const persistor = persistStore(store)
+export type AppStore = typeof store
+
+const postStoreHydration = () => {
+  createInitialState(store)
+}
+
+export const persistor = persistStore(store, undefined, postStoreHydration)
 
 export type AppDispatch = typeof store.dispatch
 export const useAppDispatch = () => useDispatch<AppDispatch>()

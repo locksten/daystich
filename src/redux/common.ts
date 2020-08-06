@@ -1,8 +1,7 @@
 import { Id } from "common"
 import { Activity } from "redux/ducks/activity"
 import { Tag } from "redux/ducks/tag"
-
-export const defaultTagColor = "#4A5568"
+import { defaultActivityTagColor } from "styling/colorPalette"
 
 export const rootActivityId = "rootActivityId-xiftrK"
 
@@ -14,7 +13,7 @@ export const isRootActivity = ({ id }: { id?: Id }) =>
 export const rootActivityTag: Tag = {
   id: rootActivityId,
   name: "Activity",
-  color: "#4A5568",
+  color: defaultActivityTagColor,
   ordering: 0,
 }
 

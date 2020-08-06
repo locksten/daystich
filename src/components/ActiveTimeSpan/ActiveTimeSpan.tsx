@@ -19,22 +19,12 @@ export const ActiveTimeSpan: FC<{}> = () => {
   const timeSpan = useAppSelector(selectActiveTimespan)
   return (
     <div tw="flex justify-center">
-      {timeSpan ? (
-        <ActiveTimeSpanExisting span={timeSpan} />
-      ) : (
-        <ActiveTimeSpanNotExisting />
-      )}
+      {timeSpan && <ActiveTimeSpanExisting span={timeSpan} />}
     </div>
   )
 }
 
-export const ActiveTimeSpanNotExisting: FC<{}> = () => (
-  <Card tw="max-w-xl w-full bg-green-400 text-white text-2xl font-semibold">
-    Start tracking!
-  </Card>
-)
-
-export const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
+const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
   const activityTag = useAppSelector((s) => selectTagById(s, span.activityId))!
   const color = useAppSelector((s) => selectTagColor(s, activityTag.id))
   const dispatch = useAppDispatch()

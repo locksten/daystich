@@ -24,3 +24,5 @@ const generatePalette = () => {
 }
 
 export const colorPalette = generatePalette()
+
+export const defaultActivityTagColor = colorPalette[2]

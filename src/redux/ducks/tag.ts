@@ -1,11 +1,7 @@
 import { createEntityAdapter, createSlice, EntityState } from "@reduxjs/toolkit"
 import { Color, Id } from "common"
 import createCachedSelector from "re-reselect"
-import {
-  defaultTagColor,
-  isRootActivityId,
-  rootActivityTag,
-} from "redux/common"
+import { isRootActivityId, rootActivityTag } from "redux/common"
 import { Activity, selectActivityIdsByTagIds } from "redux/ducks/activity"
 import {
   addActivity,
@@ -20,6 +16,7 @@ import {
 import { selectTimespanIdsByTagIds } from "redux/ducks/timeSpan"
 import { moveOneOrderable, removeOneOrderable } from "redux/ordering"
 import { RootState, useAppSelector } from "redux/redux/rootReducer"
+import { defaultActivityTagColor } from "styling/colorPalette"
 
 export type Tag = {
   id: Id
@@ -238,7 +235,7 @@ export const selectTagColor = createCachedSelector(
         ? tag.color
         : parent
         ? findTagColor(parent.id)
-        : defaultTagColor
+        : defaultActivityTagColor
     }
     return findTagColor(id)
   },
