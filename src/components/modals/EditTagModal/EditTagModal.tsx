@@ -1,32 +1,32 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Color, Id } from "common/common"
-import { RHFColorPicker } from "components/ColorPicker"
-import { FormErrors } from "components/FormErrors"
-import { FormLabel } from "components/FormLabel"
-import { useCardListSelectModal } from "components/modals/CardListSelectModal"
-import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
-import { PrimaryButton } from "components/PrimaryButton"
-import { SecondaryButton } from "components/SecondaryButton"
-import { RHFTextField } from "components/TextField"
-import { useFormWithContext } from "common/useFormWithContext"
-import { removeTag, updateTag } from "redux/ducks/shared/actions"
+import { TagId, Tag } from "redux/ducks/tag/types"
+import { Color } from "styling/color"
+import "twin.macro"
+import { useAppSelector } from "redux/redux/rootReducer"
 import {
   selectTagById,
   selectTagDescendantIds,
-  Tag,
-  useSelectTagsUsages,
-} from "redux/ducks/tag"
-import { useAppSelector } from "redux/redux/rootReducer"
+  selectTagsUsages,
+} from "redux/ducks/tag/selectors"
+import { useFormWithContext } from "common/useFormWithContext"
+import { FormModal } from "components/modals/FormModal"
+import { FormLabel } from "components/FormLabel"
+import { RHFTextField } from "components/TextField"
+import { RHFColorPicker } from "components/ColorPicker"
+import { SecondaryButton } from "components/SecondaryButton"
+import { PrimaryButton } from "components/PrimaryButton"
+import { FormErrors } from "components/FormErrors"
 import { useAppDispatch } from "redux/redux/store"
-import "twin.macro"
+import { removeTag, updateTag } from "redux/ducks/tag/tag"
+import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 
-const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
+const EditTagModal: Modal<{ id: TagId }> = ({ id, closeModal }) => {
   const dispatch = useAppDispatch()
   const tag = useAppSelector((s) => selectTagById(s, id))!
 
-  const { RemoveTagModal, onRemoveTagClick } = useRemoveTag(tag)
+  const { RemoveTagModal, onRemoveTagClick } = useRemoveTagWithModal(tag)
 
   const onSubmit = ({ name, color }: Inputs) => {
     closeModal()
@@ -42,7 +42,7 @@ const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   const { Form, errors } = useFormWithContext<Inputs>(onSubmit, {
     defaultValues: {
       name: tag.name,
-      color: tag?.color,
+      color: tag.color,
     },
   })
 
@@ -71,21 +71,22 @@ const EditTagModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   )
 }
 
-const useRemoveTag = (tag: Tag) => {
+const useRemoveTagWithModal = (tag: Tag) => {
   const dispatch = useAppDispatch()
 
-  const tagIds = [
-    tag.id,
-    ...useAppSelector((s) => selectTagDescendantIds(s, tag.id)),
-  ]
+  const otherAffectedTagIds = useAppSelector((s) =>
+    selectTagDescendantIds(s, tag.id),
+  )
 
-  const { isInUse, activityIds, timeSpanIds } = useSelectTagsUsages(tagIds)
+  const { isInUse, activityIds, timeSpanIds } = useAppSelector((s) =>
+    selectTagsUsages(s, [...otherAffectedTagIds, tag.id]),
+  )
 
   const remove = (replacement?: Tag) =>
     dispatch(
       removeTag({
         id: tag.id,
-        affectedTagIds: tagIds,
+        otherAffectedTagIds,
         affectedActivityIds: activityIds,
         affectedTimeSpanIds: timeSpanIds,
         replacementId: replacement?.id,

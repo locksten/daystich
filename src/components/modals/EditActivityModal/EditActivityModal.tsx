@@ -1,60 +1,61 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Color, Id } from "common/common"
-import { RHFColorPicker } from "components/ColorPicker"
-import { FormErrors } from "components/FormErrors"
-import { FormLabel } from "components/FormLabel"
-import { useCardListSelectModal } from "components/modals/CardListSelectModal"
-import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
-import { PrimaryButton } from "components/PrimaryButton"
-import { SecondaryButton } from "components/SecondaryButton"
-import { RHFTagList } from "components/TagList"
-import { RHFTextField } from "components/TextField"
-import { useFormWithContext } from "common/useFormWithContext"
-import {
-  Activity,
-  selectActivityById,
-  useSelectActivitiesUsages,
-} from "redux/ducks/activity"
-import { removeActivity, updateActivity } from "redux/ducks/shared/actions"
-import { selectTagById, selectTagDescendantIds, Tag } from "redux/ducks/tag"
-import { useAppSelector } from "redux/redux/rootReducer"
-import { useAppDispatch } from "redux/redux/store"
+import { Color } from "styling/color"
 import "twin.macro"
+import { ActivityId, Activity } from "redux/ducks/activity/types"
+import { TagId } from "redux/ducks/tag/types"
+import { useAppSelector } from "redux/redux/rootReducer"
+import {
+  selectActivityById,
+  selectActivitiesUsages,
+  selectActivityDescendantIds,
+} from "redux/ducks/activity/selectors"
+import { useFormWithContext } from "common/useFormWithContext"
+import { FormModal } from "components/modals/FormModal"
+import { FormLabel } from "components/FormLabel"
+import { RHFTextField } from "components/TextField"
+import { RHFColorPicker } from "components/ColorPicker"
+import { RHFTagList } from "components/TagList"
+import { SecondaryButton } from "components/SecondaryButton"
+import { PrimaryButton } from "components/PrimaryButton"
+import { FormErrors } from "components/FormErrors"
+import { useAppDispatch } from "redux/redux/store"
+import { useCardListSelectModal } from "components/modals/CardListSelectModal"
+import { removeActivity, updateActivity } from "redux/ducks/activity/activity"
 
-const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
+const EditActivityModal: Modal<{ id: ActivityId }> = ({ id, closeModal }) => {
   const dispatch = useAppDispatch()
   const activity = useAppSelector((s) => selectActivityById(s, id))!
-  const tag = useAppSelector((s) => selectTagById(s, id))!
 
-  const { RemoveActivityModal, onRemoveActivityClick } = useRemoveActivity(
-    activity,
-    tag,
-  )
+  const {
+    RemoveActivityModal,
+    onRemoveActivityClick,
+  } = useRemoveActivityWithModal(activity)
 
   const onSubmit = ({ name, color, tagIds }: Inputs) => {
     closeModal()
     dispatch(
       updateActivity({
         id,
-        activity: { tagIds },
-        activityTag: { name, color },
+        tagIds,
+        name,
+        color,
       }),
     )
   }
 
   const { Form, errors } = useFormWithContext<Inputs>(onSubmit, {
     defaultValues: {
-      name: tag.name,
-      color: tag?.color,
+      name: activity.name,
+      color: activity.color,
       tagIds: activity.tagIds,
     },
   })
 
   type Inputs = {
     name: string
-    tagIds: Id[]
+    tagIds: TagId[]
     color?: Color
   }
 
@@ -81,21 +82,22 @@ const EditActivityModal: Modal<{ id: Id }> = ({ id, closeModal }) => {
   )
 }
 
-const useRemoveActivity = (activity: Activity, activityTag: Tag) => {
+const useRemoveActivityWithModal = (activity: Activity) => {
   const dispatch = useAppDispatch()
 
-  const activityIds = [
-    activity.id,
-    ...useAppSelector((s) => selectTagDescendantIds(s, activity.id)),
-  ]
+  const otherAffectedActivityIds = useAppSelector((s) =>
+    selectActivityDescendantIds(s, activity.id),
+  )
 
-  const { isInUse, timeSpanIds } = useSelectActivitiesUsages(activityIds)
+  const { isInUse, timeSpanIds } = useAppSelector((s) =>
+    selectActivitiesUsages(s, [...otherAffectedActivityIds, activity.id]),
+  )
 
-  const remove = (replacement?: Tag) =>
+  const remove = (replacement?: Activity) =>
     dispatch(
       removeActivity({
         id: activity.id,
-        affectedActivityIds: activityIds,
+        otherAffectedActivityIds,
         affectedTimeSpanIds: timeSpanIds,
         replacementId: replacement?.id,
       }),
@@ -104,11 +106,11 @@ const useRemoveActivity = (activity: Activity, activityTag: Tag) => {
   const t = timeSpanIds.length
   const activitySelectModal = useCardListSelectModal()({
     type: "activity",
-    filters: { byNotId: activityTag.id },
+    onClick: remove,
+    filters: { byNotId: activity.id },
     title: `Select a replacement for the ${t} timespan${
       t === 1 ? "" : "s"
-    } using ${activityTag.name}`,
-    onClick: remove,
+    } using ${activity.name}`,
   })
 
   return {

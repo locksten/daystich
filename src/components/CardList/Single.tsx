@@ -1,41 +1,47 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { Id } from "common/common"
-import { Clickable } from "components/Clickable"
-import { TreeNode } from "redux/ducks/tag"
 import { useEditMode } from "common/editMode"
+import { Clickable } from "components/Clickable"
 import { FC } from "react"
 import "twin.macro"
 import tw from "twin.macro"
+import {
+  NestedOrderable,
+  NestedOrderableNode,
+} from "redux/common/nestedOrderable"
+import { Activity } from "redux/ducks/activity/types"
+import { Tag } from "redux/ducks/tag/types"
 
-export type SingleConfig = {
-  onLeafClick?: (node: TreeNode) => void
+export type SingleConfig<T extends NestedOrderable> = {
+  onLeafClick?: (entity: T) => void
   RenderSide?: FC<{
-    id: Id
+    id: T["id"]
   }>
 }
 
-export const Single: FC<{
-  node: TreeNode
+type Props<T extends NestedOrderable> = {
+  node: NestedOrderableNode<T>
   isTopLevel: boolean
-  singleConfig: SingleConfig
+  singleConfig: SingleConfig<T>
   dragHandleProps?: object
   dropProps?: object
-}> = ({
+}
+
+export const Single = <T extends Activity | Tag>({
   node,
   singleConfig: { onLeafClick, RenderSide },
   isTopLevel,
   dragHandleProps,
   dropProps,
-}) => {
+}: Props<T>) => {
   const { isEditMode } = useEditMode()
   const isLeaf = node.children.length === 0
 
-  const Name: FC<{}> = ({ children, ...props }) =>
+  const Name: FC = ({ children, ...props }) =>
     isEditMode ? (
       <div {...props}>{children}</div>
-    ) : isLeaf && !node.hasTopLevelChildren ? (
-      <Clickable onClick={() => onLeafClick?.(node)} {...props}>
+    ) : isLeaf && !node.hasChildren ? (
+      <Clickable onClick={() => onLeafClick?.(node.entity)} {...props}>
         {children}
       </Clickable>
     ) : (
@@ -44,9 +50,9 @@ export const Single: FC<{
       </div>
     )
 
-  const Side: FC<{}> = () => (
+  const Side: FC = () => (
     <div tw="h-full flex items-center px-1">
-      {RenderSide && <RenderSide id={node.tag.id} />}
+      {RenderSide && <RenderSide id={node.entity.id} />}
     </div>
   )
 
@@ -61,12 +67,9 @@ export const Single: FC<{
         css={css`
           ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white overflow-hidden`};
           ${isTopLevel && tw`text-xl font-extrabold`};
-          ${!isTopLevel && !isLeaf && tw`text-lg font-semibold`};
-          ${!isTopLevel &&
-          isLeaf &&
-          !node.hasTopLevelChildren &&
+          ${!isTopLevel && tw`text-lg font-semibold`};
+          ${!node.hasChildren &&
           css`
-            ${tw`text-lg font-semibold`};
             &:hover {
               background-color: rgba(0, 0, 0, 0.05);
             }
@@ -74,7 +77,9 @@ export const Single: FC<{
         `}
         {...dragHandleProps}
       >
-        <Name tw="h-full w-full text-left min-w-0 truncate">{`${node.tag.name}`}</Name>
+        <Name tw="h-full w-full text-left min-w-0 truncate box-border">
+          {node.entity.name}
+        </Name>
         <Side />
       </div>
     </div>

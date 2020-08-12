@@ -1,17 +1,17 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { Id } from "common/common"
+import { RHFControlledElementWrapper } from "common/RHFElementWrapper"
 import { IconButton } from "components/IconButton"
+import { useCardListSelectModal } from "components/modals/CardListSelectModal"
 import { TagChip } from "components/TagChip"
 import { FC, Fragment } from "react"
 import "twin.macro"
 import tw from "twin.macro"
-import { RHFControlledElementWrapper } from "common/RHFElementWrapper"
-import { useCardListSelectModal } from "components/modals/CardListSelectModal"
+import { TagId } from "redux/ducks/tag/types"
 
 export const TagList: FC<{
-  value?: Id[]
-  onChange?: (ids: Id[]) => void
+  value?: TagId[]
+  onChange?: (ids: TagId[]) => void
   showAddButton?: "onGroupHover" | "always"
   wrap?: boolean
 }> = ({ value: ids = [], onChange, showAddButton = "always", wrap = true }) => {

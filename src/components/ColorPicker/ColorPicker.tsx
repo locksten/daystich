@@ -3,12 +3,12 @@ import { css, jsx } from "@emotion/core"
 import { RHFControlledElementWrapper } from "common/RHFElementWrapper"
 import { FC } from "react"
 import { CirclePicker } from "react-color"
-import { colorPalette } from "styling/colorPalette"
+import { colorPalette, Color } from "styling/color"
 import "twin.macro"
 
 export const ColorPicker: FC<{
-  value?: string
-  onChange?: (color?: string) => void
+  value?: Color
+  onChange?: (color?: Color) => void
 }> = ({ value, onChange }) => {
   const spacing = 6
 
@@ -25,7 +25,7 @@ export const ColorPicker: FC<{
         width={"100%"}
         color={value}
         onChangeComplete={({ hex }) => {
-          onChange?.(hex === value ? undefined : hex)
+          onChange?.(hex === value ? undefined : (hex as Color))
         }}
         colors={colorPalette}
       />

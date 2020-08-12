@@ -1,13 +1,12 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common/common"
 import { TagCardList } from "components/CardList/TagCardList"
 import { Modal, useModal } from "components/modals/Modal"
-import { Tag } from "redux/ducks/tag"
+import { FC, useRef } from "react"
 import "twin.macro"
-import { useRef, FC } from "react"
+import { TagId, Tag } from "redux/ducks/tag/types"
 
-const TagCardModal: Modal<{ id: Id; onClick: (tag: Tag) => void }> = ({
+const TagCardModal: Modal<{ id: TagId; onClick: (tag: Tag) => void }> = ({
   onClick,
   id,
   closeModal,
@@ -20,9 +19,9 @@ const TagCardModal: Modal<{ id: Id; onClick: (tag: Tag) => void }> = ({
         singleColumn: true,
       }}
       singleConfig={{
-        onLeafClick: ({ tag }) => {
+        onLeafClick: (actag) => {
           closeModal()
-          onClick(tag)
+          onClick(actag)
         },
       }}
       {...props}
@@ -31,7 +30,7 @@ const TagCardModal: Modal<{ id: Id; onClick: (tag: Tag) => void }> = ({
 }
 
 export const useTagCardModal = (args: {
-  id: Id
+  id: TagId
   onClick: (tag: Tag) => void
 }) => {
   const ref = useRef<HTMLDivElement>(null)

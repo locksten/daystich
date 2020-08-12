@@ -1,8 +1,11 @@
 import resolveConfig from "tailwindcss/resolveConfig"
+import { Brand } from "common/utilityTypes"
 
-const theme = resolveConfig().theme
+export type Color = Brand<string, "Color">
 
 const generatePalette = () => {
+  const theme = resolveConfig().theme
+
   const hues = [
     "gray",
     "red",
@@ -18,11 +21,12 @@ const generatePalette = () => {
   const values = ["300", "500", "700"]
   return hues.flatMap((hue, idx) =>
     (idx % 2 === 0 ? values : values.reverse()).map((value) => {
-      return theme["colors"][hue][value] as string
+      return theme["colors"][hue][value] as Color
     }),
   )
 }
 
 export const colorPalette = generatePalette()
 
-export const defaultActivityTagColor = colorPalette[2]
+export const defaultActivityColor = colorPalette[2]
+export const defaultTagColor = colorPalette[2]

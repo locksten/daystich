@@ -2,12 +2,11 @@ import { combineReducers } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 import { persistReducer } from "redux-persist"
 import storage from "redux-persist/lib/storage"
-import { activityReducer } from "redux/ducks/activity"
-import { mainActivityListReducer } from "redux/ducks/mainActivityList"
-import { mainTagListReducer } from "redux/ducks/mainTagList"
-import { metaReducer } from "redux/ducks/meta"
-import { tagReducer } from "redux/ducks/tag"
-import { timeSpanReducer } from "redux/ducks/timeSpan"
+import { metaReducer } from "redux/ducks/meta/meta"
+import { timeSpanReducer } from "redux/ducks/timeSpan/timeSpan"
+import { taskReducer } from "redux/ducks/task/task"
+import { activityReducer } from "redux/ducks/activity/activity"
+import { tagReducer } from "redux/ducks/tag/tag"
 
 export const persistConfig = {
   key: "root",
@@ -19,10 +18,9 @@ const rootReducer = persistReducer(
   combineReducers({
     meta: metaReducer,
     timeSpan: timeSpanReducer,
-    tag: tagReducer,
-    mainTagList: mainTagListReducer,
+    task: taskReducer,
     activity: activityReducer,
-    mainActivityList: mainActivityListReducer,
+    tag: tagReducer,
   }),
 )
 

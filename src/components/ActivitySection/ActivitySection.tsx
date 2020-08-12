@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { Id } from "common/common"
+import { useEditMode, useEditModeProvider } from "common/editMode"
 import { Card } from "components/Card"
 import { ActivityCardList } from "components/CardList/ActivityCardList"
 import { Clickable } from "components/Clickable"
@@ -8,30 +8,29 @@ import { IconButton } from "components/IconButton"
 import { useAddActivityModal } from "components/modals/AddActivityModal"
 import { useAddTagModal } from "components/modals/AddTagModal"
 import { useTagCardModal } from "components/modals/TagCardModal"
-import { selectMainTagListEntryIds } from "redux/ducks/mainTagList"
-import { useAppSelector } from "redux/redux/rootReducer"
-import {
-  selectTagById,
-  selectTagChildrenIds,
-  selectTagColor,
-} from "redux/ducks/tag"
-import { useEditMode, useEditModeProvider } from "common/editMode"
 import { FC, Fragment, useState } from "react"
+import { useAppSelector } from "redux/redux/rootReducer"
 import "twin.macro"
 import tw from "twin.macro"
-import { rootActivityId } from "redux/ducks/shared/treeNodeRoots"
+import { TagId } from "redux/ducks/tag/types"
+import {
+  selectTagById,
+  selectTopLevelTagIds,
+  selectTagColor,
+  selectTagChildren,
+} from "redux/ducks/tag/selectors"
 
 export const ActivitySection: FC = () => {
-  const [selectedTagIdState, setSelectedTagId] = useState<Id | undefined>(
+  const [selectedTagIdState, setSelectedTagId] = useState<TagId | undefined>(
     undefined,
   )
 
   const selectedTagId = useAppSelector((s) =>
-    selectTagById(s, selectedTagIdState ?? ""),
+    selectTagById(s, selectedTagIdState),
   )?.id
 
   const addActivityModal = useAddActivityModal()({
-    parentTagId: rootActivityId,
+    parentId: undefined,
   })
 
   const { EditModeProvider, isEditMode } = useEditModeProvider()
@@ -56,16 +55,16 @@ export const ActivitySection: FC = () => {
   )
 }
 
-const RootTags: FC<{ onClick: (id?: Id) => void; selectedTagId?: Id }> = ({
-  onClick,
-  selectedTagId,
-}) => {
-  const ids = useAppSelector(selectMainTagListEntryIds)
+const RootTags: FC<{
+  onClick: (id?: TagId) => void
+  selectedTagId?: TagId
+}> = ({ onClick, selectedTagId }) => {
+  const ids = useAppSelector(selectTopLevelTagIds)
 
   const { isEditMode, toggleEditMode } = useEditMode()
 
   const addTagModal = useAddTagModal()({
-    parentTagId: undefined,
+    parentId: undefined,
   })
 
   const Margin: FC<{}> = ({ children }) => (
@@ -114,14 +113,14 @@ const RootTags: FC<{ onClick: (id?: Id) => void; selectedTagId?: Id }> = ({
 }
 
 const RootTag: FC<{
-  id: Id
-  onClick: (id?: Id) => void
+  id: TagId
+  onClick: (id?: TagId) => void
   isSelected: boolean
 }> = ({ id, isSelected, onClick }) => {
   const tag = useAppSelector((s) => selectTagById(s, id))!
   const color = useAppSelector((s) => selectTagColor(s, id))
   const isLeaf =
-    useAppSelector((s) => selectTagChildrenIds(s, tag.id)).length === 0
+    useAppSelector((s) => selectTagChildren(s, tag.id)).length === 0
   const { isEditMode } = useEditMode()
   const tagCardModal = useTagCardModal({
     id: id,

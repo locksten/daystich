@@ -1,35 +1,29 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Color, Id } from "common/common"
-import { RHFColorPicker } from "components/ColorPicker"
-import { FormErrors } from "components/FormErrors"
-import { FormLabel } from "components/FormLabel"
-import { FormModal } from "components/modals/FormModal"
 import { Modal, useModal } from "components/modals/Modal"
-import { PrimaryButton } from "components/PrimaryButton"
-import { RHFTextField } from "components/TextField"
-import { useFormWithContext } from "common/useFormWithContext"
-import { addTag } from "redux/ducks/shared/actions"
-import { selectTagById, useSelectTagUsages } from "redux/ducks/tag"
-import { useAppSelector } from "redux/redux/rootReducer"
-import { useAppDispatch } from "redux/redux/store"
 import "twin.macro"
+import { TagId } from "redux/ducks/tag/types"
+import { useAppDispatch } from "redux/redux/store"
+import { addTag } from "redux/ducks/tag/tag"
+import { useFormWithContext } from "common/useFormWithContext"
+import { Color } from "styling/color"
+import { FormModal } from "components/modals/FormModal"
+import { FormLabel } from "components/FormLabel"
+import { RHFTextField } from "components/TextField"
+import { RHFColorPicker } from "components/ColorPicker"
+import { PrimaryButton } from "components/PrimaryButton"
+import { FormErrors } from "components/FormErrors"
 
-const AddTagModal: Modal<{ parentTagId?: Id }> = ({
-  closeModal,
-  parentTagId,
-}) => {
+const AddTagModal: Modal<{ parentId?: TagId }> = ({ closeModal, parentId }) => {
   const dispatch = useAppDispatch()
-  const parentTag = useAppSelector((s) => selectTagById(s, parentTagId || ""))
-  const { isInUse } = useSelectTagUsages(parentTagId)
 
   const onSubmit = ({ name, color }: Inputs) => {
     closeModal()
     dispatch(
       addTag({
-        tag: { name, parentTagId, color },
-        newParentIsTopLevel: parentTag?.parentTagId === undefined,
-        isInUse: isInUse,
+        name,
+        parentId,
+        color,
       }),
     )
   }

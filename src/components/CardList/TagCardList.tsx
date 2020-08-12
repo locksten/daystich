@@ -1,45 +1,40 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common/common"
+import { useEditMode } from "common/editMode"
+import { CardList, CardListConfig } from "components/CardList/CardList"
+import { EditSide } from "components/CardList/EditSide"
 import { useAddTagModal } from "components/modals/AddTagModal"
 import { useEditTagModal } from "components/modals/EditTagModal"
-import { useAppSelector } from "redux/redux/rootReducer"
-import {
-  selectMainTagTreeList,
-  selectTagTreeList,
-} from "redux/ducks/shared/treeNodeSelectors"
-import { useEditMode } from "common/editMode"
 import { FC } from "react"
+import { useAppSelector } from "redux/redux/rootReducer"
 import "twin.macro"
-import { CardList, CardListConfig } from "./CardList"
-import { EditSide } from "./EditSide"
 import { SingleConfig } from "./Single"
+import { Tag, TagId } from "redux/ducks/tag/types"
+import { selectTagTreeList } from "redux/ducks/tag/selectors"
 
 export const TagCardList: FC<{
   config?: CardListConfig
-  singleConfig?: SingleConfig
-  id?: Id
+  singleConfig?: SingleConfig<Tag>
+  id?: TagId
 }> = ({ config, singleConfig, id, ...props }) => {
   const { isEditMode } = useEditMode()
 
   const TagSide = undefined
 
-  const TagEditSide: FC<{ id: Id }> = ({ id }) => {
-    const add = useAddTagModal()({ parentTagId: id })
+  const TagEditSide: FC<{ id: TagId }> = ({ id }) => {
+    const add = useAddTagModal()({ parentId: id })
     const edit = useEditTagModal()({ id })
     return <EditSide addModal={add} editModal={edit} />
   }
 
-  const defaultSingleConfig: Partial<SingleConfig> = {
+  const defaultSingleConfig: Partial<SingleConfig<Tag>> = {
     RenderSide: isEditMode ? TagEditSide : TagSide,
   }
 
-  const nodes = useAppSelector((s) =>
-    id ? selectTagTreeList(s, id) : selectMainTagTreeList(s),
-  )
+  const nodes = useAppSelector((s) => selectTagTreeList(s, id))
 
   return (
-    <CardList
+    <CardList<Tag>
       nodes={nodes}
       config={config ?? {}}
       singleConfig={{ ...defaultSingleConfig, ...singleConfig }}

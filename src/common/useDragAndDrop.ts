@@ -21,7 +21,12 @@ export const useDnd = <T extends object>({
   type: keyof typeof DndItemTypes
   canDrag: () => boolean
   item: T
-  onDrop: (item: T, destination: T, dropSide: "top" | "mid" | "bot") => void
+  onDrop: (
+    item: T,
+    destination: T,
+    dropSideX: "top" | "mid" | "bot", // TODO
+    dropSideY: "top" | "mid" | "bot",
+  ) => void
 }) => {
   type DragItem = DndDragItem & { item: T }
 
@@ -51,7 +56,12 @@ export const useDnd = <T extends object>({
     accept: type,
     drop(dragItem: DragItem, monitor) {
       if (monitor.didDrop()) return
-      onDrop(dragItem.item, item, calculateDropSide(monitor)!)
+      onDrop(
+        dragItem.item,
+        item,
+        calculateDropSide(monitor)!,
+        calculateDropSide(monitor)!,
+      )
       return dragItem
     },
   })

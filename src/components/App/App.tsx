@@ -1,6 +1,5 @@
 /** @jsx jsx */
 import { Global, jsx } from "@emotion/core"
-import { ActiveTimeSpan } from "components/ActiveTimeSpan"
 import { ActivitySection } from "components/ActivitySection"
 import { FC } from "react"
 import { DndProvider } from "react-dnd"
@@ -11,6 +10,7 @@ import store, { persistor } from "redux/redux/store"
 import { globalStyle } from "styling/Themes"
 import "tailwindcss/dist/base.css"
 import "twin.macro"
+import { ActiveTimeSpan } from "components/ActiveTimeSpan"
 
 export const App: FC = () => {
   return (

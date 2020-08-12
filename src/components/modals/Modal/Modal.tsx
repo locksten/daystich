@@ -4,19 +4,20 @@ import { DialogContent, DialogOverlay } from "@reach/dialog"
 import "@reach/dialog/styles.css"
 import { FC, Fragment, useState } from "react"
 import "twin.macro"
+import { UnionOmit } from "common/utilityTypes"
 
 export type Modal<T = {}> = FC<{ closeModal: () => void } & T>
 
-export const useModal = <T extends {}>(
+export const useModal = <T extends { closeModal: () => void }>(
   label: string,
-  RenderModal: FC<{ closeModal: () => void } & T>,
+  RenderModal: FC<T>,
   rect?: DOMRect,
 ) => {
   const [isOpen, setIsOpen] = useState(false)
   const open = () => setIsOpen(true)
   const close = () => setIsOpen(false)
 
-  return (args: T) => ({
+  return (args: UnionOmit<T, "closeModal">) => ({
     Modal: () => (
       <Fragment>
         {isOpen && (
@@ -52,7 +53,7 @@ export const useModal = <T extends {}>(
                     `};
               `}
             >
-              <RenderModal closeModal={close} {...args} />
+              <RenderModal closeModal={close} {...(args as any)} />
             </DialogContent>
           </DialogOverlay>
         )}

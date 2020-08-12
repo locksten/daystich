@@ -1,82 +1,79 @@
 /** @jsx jsx */
 import { useDnd } from "common/useDragAndDrop"
-import { useEditMode } from "common/editMode"
-import { useSelectActivityUsages } from "redux/ducks/activity"
-import { moveActivity, moveTag } from "redux/ducks/shared/actions"
-import {
-  getTagDescendantIds,
-  selectTags,
-  TreeNode,
-  useSelectTagUsages,
-} from "redux/ducks/tag"
-import { useAppSelector } from "redux/redux/rootReducer"
+import { moveActivity } from "redux/ducks/activity/activity"
 import { useAppDispatch } from "redux/redux/store"
 import "twin.macro"
+import { moveTag } from "redux/ducks/tag/tag"
+import { Activity, ActivityId } from "redux/ducks/activity/types"
+import { Tag, TagId } from "redux/ducks/tag/types"
 
 export const useTreeNodeDnd = (
-  node: TreeNode,
+  entity: Activity | Tag,
   element: "list" | "single",
   hasChildren?: boolean,
 ) => {
-  const { isEditMode } = useEditMode()
   const dispatch = useAppDispatch()
 
-  const { isInUse: activityIsInUse } = useSelectActivityUsages(
-    node.activity?.id,
-  )
-  const { isInUse: tagIsInUse } = useSelectTagUsages(node.tag.id)
-
-  const tags = useAppSelector(selectTags)
-
-  const { dndDragHandleProps, dndProps } = useDnd<TreeNode>({
-    type: node.activity ? "activity" : "tag",
-    item: node,
-    canDrag: () => isEditMode,
-    onDrop: (node, destination, dropSide) => {
-      dropSide =
+  const { dndDragHandleProps, dndProps } = useDnd<Activity | Tag>({
+    type: entity._type,
+    item: entity,
+    canDrag: () => true,
+    onDrop: (entity, destination, _dropSideX, dropSideY) => {
+      dropSideY =
         element === "single"
-          ? hasChildren && dropSide === "bot"
+          ? hasChildren && dropSideY === "bot"
             ? "mid"
-            : dropSide
-          : dropSide === "mid"
+            : dropSideY
+          : dropSideY === "mid"
           ? "bot"
-          : dropSide
-
-      if (dropSide === "mid" && node.tag.id === destination.tag.id) return
+          : dropSideY
 
       const newParentId =
-        dropSide === "mid" ? destination.tag.id : destination.tag.parentTagId
+        dropSideY === "mid" ? destination.id : destination.parentId
 
-      const descendants = getTagDescendantIds(tags, node.tag.id)
-      if (newParentId && descendants.includes(newParentId)) return
+      if (entity.id === newParentId) return
 
-      const destinationOrdering =
-        destination.mainListOrdering ?? destination.tag.ordering
+      const adjustOrderingByDropSide = (ordering?: number) =>
+        ordering === undefined
+          ? -1
+          : dropSideY === "top"
+          ? ordering
+          : dropSideY === "bot"
+          ? ordering + 1
+          : -1
 
-      const newPosition =
-        dropSide === "top"
-          ? destinationOrdering
-          : dropSide === "bot"
-          ? destinationOrdering + 1
-          : undefined
+      const newOrdering =
+        newParentId === undefined
+          ? {
+              topLevelOrdering: adjustOrderingByDropSide(
+                destination.topLevelOrdering,
+              ),
+            }
+          : {
+              ordering: adjustOrderingByDropSide(destination.ordering),
+            }
 
-      dispatch(
-        node.activity
-          ? moveActivity({
-              id: node.tag.id,
-              newParentId,
-              newParentIsTopLevel: destination.mainListOrdering !== undefined,
-              newPosition,
-              isInUse: dropSide === "mid" && activityIsInUse,
-            })
-          : moveTag({
-              id: node.tag.id,
-              newParentId,
-              newPosition,
-              newParentIsTopLevel: destination.mainListOrdering !== undefined,
-              isInUse: dropSide === "mid" && tagIsInUse,
-            }),
-      )
+      if (entity._type === "activity" && destination._type === "activity") {
+        dispatch(
+          moveActivity({
+            id: entity.id,
+            to: {
+              parentId: newParentId as ActivityId,
+              ...newOrdering,
+            },
+          }),
+        )
+      } else if (entity._type === "tag" && destination._type === "tag") {
+        dispatch(
+          moveTag({
+            id: entity.id,
+            to: {
+              parentId: newParentId as TagId,
+              ...newOrdering,
+            },
+          }),
+        )
+      }
     },
   })
 

@@ -1,29 +1,43 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core"
-import { TagCardList } from "components/CardList/TagCardList"
-import { ActivityCardList } from "components/CardList/ActivityCardList"
+import { useEditModeProvider } from "common/editMode"
 import { Card } from "components/Card"
+import { ActivityCardList } from "components/CardList/ActivityCardList"
+import { Filters } from "components/CardList/filters"
+import { TagCardList } from "components/CardList/TagCardList"
 import { Modal, useModal } from "components/modals/Modal"
 import { TextField } from "components/TextField"
-import { Tag } from "redux/ducks/tag"
-import { useEditModeProvider } from "common/editMode"
-import { useState, ReactNode } from "react"
+import { ReactNode, useState } from "react"
 import "twin.macro"
-import { Filters } from "components/CardList/filters"
+import { Activity } from "redux/ducks/activity/types"
+import { Tag } from "redux/ducks/tag/types"
 
-export const CardListSelectModal: Modal<{
-  type: "activity" | "tag"
+type Props = (
+  | {
+      type: "activity"
+      onClick: (activity: Activity) => void
+    }
+  | {
+      type: "tag"
+      onClick: (tag: Tag) => void
+    }
+) & {
   title?: string
   RenderBelowTitle?: ReactNode
   filters?: Filters
-  onClick: (tag: Tag) => void
-}> = ({ type, title, RenderBelowTitle, onClick, filters, closeModal }) => {
+}
+
+export const CardListSelectModal: Modal<Props> = ({
+  type,
+  title,
+  RenderBelowTitle,
+  onClick,
+  filters,
+  closeModal,
+}) => {
   const [searchTerm, setSearchTerm] = useState("")
-
   const { EditModeProvider } = useEditModeProvider()
-
   const CardListComponent = type === "activity" ? ActivityCardList : TagCardList
-
   return (
     <Card
       tw="p-0 overflow-hidden"
@@ -57,9 +71,9 @@ export const CardListSelectModal: Modal<{
               filters: { ...filters, byName: searchTerm },
             }}
             singleConfig={{
-              onLeafClick: ({ tag }) => {
+              onLeafClick: (actag: any) => {
                 closeModal()
-                onClick(tag)
+                onClick(actag)
               },
             }}
           />

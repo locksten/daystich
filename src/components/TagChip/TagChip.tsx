@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Id } from "common/common"
-import { useAppSelector } from "redux/redux/rootReducer"
-import { selectTagById, selectTagColor } from "redux/ducks/tag"
-import { FC } from "react"
-import "twin.macro"
 import { Clickable } from "components/Clickable"
+import { FC } from "react"
+import { useAppSelector } from "redux/redux/rootReducer"
+import "twin.macro"
+import { TagId } from "redux/ducks/tag/types"
+import { selectTagById, selectTagColor } from "redux/ducks/tag/selectors"
 
-export const TagChip: FC<{ id: Id; onClick?: () => void }> = ({
+export const TagChip: FC<{ id: TagId; onClick?: () => void }> = ({
   id,
   onClick,
   ...props

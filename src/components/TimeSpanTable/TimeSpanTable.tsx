@@ -1,22 +1,20 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { nanoid } from "@reduxjs/toolkit"
-import { formatTime, Id, shortHumanizer } from "common/common"
+import { formatTime, shortHumanizer } from "common/time"
 import { Card } from "components/Card"
 import { PrimaryButton } from "components/PrimaryButton"
-import { SecondaryButton } from "components/SecondaryButton"
 import { Table } from "components/Table"
 import { TextField } from "components/TextField"
-import { useAppSelector } from "redux/redux/rootReducer"
-import { useAppDispatch } from "redux/redux/store"
-import { selectTagById } from "redux/ducks/tag"
-import {
-  addTestTimeSpans,
-  addTimeSpan,
-  selectTimespans,
-} from "redux/ducks/timeSpan"
 import { FC, Fragment } from "react"
 import { useForm } from "react-hook-form"
+import { selectActivityById } from "redux/ducks/activity/selectors"
+import { ActivityId } from "redux/ducks/activity/types"
+import { selectTagById } from "redux/ducks/tag/selectors"
+import { TagId } from "redux/ducks/tag/types"
+import { selectTimespans } from "redux/ducks/timeSpan/selectors"
+import { addTimeSpan } from "redux/ducks/timeSpan/timeSpan"
+import { useAppSelector } from "redux/redux/rootReducer"
+import { useAppDispatch } from "redux/redux/store"
 import "twin.macro"
 
 type Inputs = {
@@ -25,13 +23,13 @@ type Inputs = {
   startTime: string
 }
 
-const Activity: FC<{ id: Id }> = ({ id }) => {
-  const tag = useAppSelector((s) => selectTagById(s, id))
-  return <Fragment>{tag?.name}</Fragment>
+const Activity: FC<{ id: ActivityId }> = ({ id }) => {
+  const activity = useAppSelector((s) => selectActivityById(s, id))
+  return <Fragment>{activity?.name}</Fragment>
 }
 
-const Tags: FC<{ ids: Id[] }> = ({ ids }) => {
-  const Tag: FC<{ id: Id }> = ({ id }) => {
+const Tags: FC<{ ids?: TagId[] }> = ({ ids = [] }) => {
+  const Tag: FC<{ id: TagId }> = ({ id }) => {
     const tag = useAppSelector((s) => selectTagById(s, id))
     return <Fragment>:{tag?.name}</Fragment>
   }
@@ -45,19 +43,18 @@ const Tags: FC<{ ids: Id[] }> = ({ ids }) => {
 }
 
 export const TimeSpanTable: FC<{}> = () => {
-  const timeSpans = useAppSelector(selectTimespans)
   const dispatch = useAppDispatch()
+  const timeSpans = useAppSelector(selectTimespans)
 
   const { register, handleSubmit, reset } = useForm<Inputs>()
   const onSubmit = ({ activityId, startTime, tagIds }: Inputs) => {
     dispatch(
       addTimeSpan({
-        id: nanoid(),
-        activityId,
+        activityId: activityId as ActivityId,
         startTime: startTime === "" ? Date.now() : Number(startTime),
-        tagIds: [],
       }),
     )
+
     reset({ activityId, tagIds })
   }
 
@@ -96,10 +93,6 @@ export const TimeSpanTable: FC<{}> = () => {
         <TextField ref={register} name="startTime" label="startTime" />
         <PrimaryButton text="Add" type="submitButton" />
       </form>
-      <SecondaryButton
-        text="Add test data"
-        onClick={() => dispatch(addTestTimeSpans(["activityId"]))}
-      />
     </Card>
   )
 }

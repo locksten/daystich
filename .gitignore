@@ -6,6 +6,8 @@
 
 storybook-static
 
+dependency-graph.html
+
 # dependencies
 /node_modules
 /.pnp

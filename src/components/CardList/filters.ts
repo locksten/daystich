@@ -1,32 +1,46 @@
-import { TreeNode } from "redux/ducks/tag"
-import { Id } from "common/common"
+import { ActivityId, Activity, isActivity } from "redux/ducks/activity/types"
+import {
+  NestedOrderableNode,
+  NestedOrderable,
+} from "redux/common/nestedOrderable"
+import { EntityId } from "@reduxjs/toolkit"
+import { TagId, Tag } from "redux/ducks/tag/types"
 
 export type Filters = {
   byName?: string
-  byId?: Id
-  byNotId?: Id
-  byActivityTagId?: Id
+  byId?: ActivityId | TagId
+  byNotId?: ActivityId | TagId
+  byActivityTagId?: TagId
 }
 
-type Predicate = (node: TreeNode) => boolean
+type Predicate<T extends NestedOrderable> = (
+  node: NestedOrderableNode<T>,
+) => boolean
 
-const nameFilter = (name: string) => ({ tag }: TreeNode) =>
-  tag.name.toLowerCase().includes(name)
+const nameFilter = <T extends NestedOrderable & { name: string }>(
+  name: string,
+) => ({ entity }: NestedOrderableNode<T>) =>
+  entity.name.toLowerCase().includes(name)
 
-const idFilter = (id: Id) => ({ tag }: TreeNode) => tag.id === id
+const idFilter = <T extends NestedOrderable>(id: EntityId) => ({
+  entity,
+}: NestedOrderableNode<T>) => entity.id === id
 
-const activityTagIdFilter = (id: Id) => ({ activity }: TreeNode) => {
-  return activity!.tagIds.includes(id)
+const activityTagIdFilter = <T extends Activity | Tag>(id: TagId) => ({
+  entity,
+}: NestedOrderableNode<T>) => {
+  return isActivity(entity) && !!entity.tagIds && entity.tagIds.includes(id)
 }
 
-const inverted = (pred: Predicate) => (...args: Parameters<typeof pred>) =>
-  !pred(...args)
+const inverted = <T extends NestedOrderable>(pred: Predicate<T>) => (
+  ...args: Parameters<typeof pred>
+) => !pred(...args)
 
-const treeFilter = (
-  node: TreeNode,
-  pred: Predicate,
+const treeFilter = <T extends NestedOrderable>(
+  node: NestedOrderableNode<T>,
+  pred: Predicate<T>,
   strict: boolean,
-): TreeNode | undefined => {
+): NestedOrderableNode<T> | undefined => {
   const filteredChildren = treeListFilter(pred, strict)(node.children)
   return strict
     ? pred(node)
@@ -39,19 +53,20 @@ const treeFilter = (
     : undefined
 }
 
-const treeListFilter = (pred: Predicate, strict: boolean) => (
-  nodes: TreeNode[],
-): TreeNode[] => {
+const treeListFilter = <T extends NestedOrderable>(
+  pred: Predicate<T>,
+  strict: boolean,
+) => (nodes: NestedOrderableNode<T>[]): NestedOrderableNode<T>[] => {
   return nodes
-    .map((node) => treeFilter(node, pred, strict))
-    .filter((node): node is TreeNode => node !== undefined)
+    .map((node) => treeFilter<T>(node, pred, strict))
+    .filter((node): node is NestedOrderableNode<T> => node !== undefined)
 }
 
-export const applyFilters = (
-  nodes: TreeNode[],
+export const applyFilters = <T extends Activity | Tag>(
+  nodes: NestedOrderableNode<T>[],
   { byActivityTagId, byId, byNotId, byName }: Filters,
 ) => {
-  const applyFilter = (pred: Predicate, strict: boolean = false) => {
+  const applyFilter = (pred: Predicate<T>, strict: boolean = false) => {
     nodes = treeListFilter(pred, strict)(nodes)
   }
   byName && applyFilter(nameFilter(byName.trim()))

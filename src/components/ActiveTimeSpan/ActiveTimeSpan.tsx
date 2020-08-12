@@ -1,19 +1,20 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
+import { getCurrentTimestamp, humanizeDuration } from "common/time"
+import { useIntervalState } from "common/useIntervalState"
 import { Card } from "components/Card"
 import { TagList } from "components/TagList"
-import { useAppSelector } from "redux/redux/rootReducer"
-import { useAppDispatch } from "redux/redux/store"
-import { selectTagById, selectTagColor } from "redux/ducks/tag"
-import {
-  selectActiveTimespan,
-  TimeSpan,
-  updateTimespan,
-} from "redux/ducks/timeSpan"
-import { useIntervalState } from "common/useIntervalState"
 import { FC } from "react"
+import {
+  selectActivityById,
+  selectActivityColor,
+} from "redux/ducks/activity/selectors"
+import { selectActiveTimespan } from "redux/ducks/timeSpan/selectors"
+import { TimeSpan } from "redux/ducks/timeSpan/types"
+import { useAppSelector } from "redux/redux/rootReducer"
 import "twin.macro"
-import humanizeDuration from "humanize-duration"
+import { useAppDispatch } from "redux/redux/store"
+import { updateTimeSpan } from "redux/ducks/timeSpan/timeSpan"
 
 export const ActiveTimeSpan: FC<{}> = () => {
   const timeSpan = useAppSelector(selectActiveTimespan)
@@ -25,9 +26,11 @@ export const ActiveTimeSpan: FC<{}> = () => {
 }
 
 const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
-  const activityTag = useAppSelector((s) => selectTagById(s, span.activityId))!
-  const color = useAppSelector((s) => selectTagColor(s, activityTag.id))
   const dispatch = useAppDispatch()
+  const activity = useAppSelector((s) =>
+    selectActivityById(s, span.activityId),
+  )!
+  const color = useAppSelector((s) => selectActivityColor(s, activity.id))
 
   return (
     <div className="group" tw="max-w-2xl w-full">
@@ -36,12 +39,12 @@ const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
         css={{ backgroundColor: color }}
       >
         <div tw="flex space-x-4 items-center overflow-x-scroll">
-          <div tw="font-semibold text-3xl">{activityTag.name}</div>
+          <div tw="font-semibold text-3xl">{activity.name}</div>
           <div tw="overflow-x-scroll">
             <TagList
               value={span.tagIds}
               onChange={(ids) =>
-                dispatch(updateTimespan({ id: span.id, tagIds: ids }))
+                dispatch(updateTimeSpan({ id: span.id, tagIds: ids }))
               }
               showAddButton="onGroupHover"
               wrap={false}
@@ -56,7 +59,7 @@ const ActiveTimeSpanExisting: FC<{ span: TimeSpan }> = ({ span }) => {
 
 const ActiveTimeSpanTime: FC<{ span: TimeSpan }> = ({ span }) => {
   const time = useIntervalState(() =>
-    humanizeDuration(Date.now() - span.startTime, {
+    humanizeDuration(getCurrentTimestamp() - span.startTime, {
       units: ["h", "m"],
       delimiter: " ",
       round: true,

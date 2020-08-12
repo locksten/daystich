@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { Color, Id } from "common/common"
+import { useFormWithContext } from "common/useFormWithContext"
 import { RHFColorPicker } from "components/ColorPicker"
 import { FormErrors } from "components/FormErrors"
 import { FormLabel } from "components/FormLabel"
@@ -9,35 +9,27 @@ import { Modal, useModal } from "components/modals/Modal"
 import { PrimaryButton } from "components/PrimaryButton"
 import { RHFTagList } from "components/TagList"
 import { RHFTextField } from "components/TextField"
-import { useFormWithContext } from "common/useFormWithContext"
-import { isRootActivityId } from "redux/ducks/shared/treeNodeRoots"
-import { useSelectActivityUsages } from "redux/ducks/activity"
-import { addActivity } from "redux/ducks/shared/actions"
-import { selectTagById } from "redux/ducks/tag"
-import { useAppSelector } from "redux/redux/rootReducer"
+import { addActivity } from "redux/ducks/activity/activity"
+import { ActivityId } from "redux/ducks/activity/types"
+import { TagId } from "redux/ducks/tag/types"
 import { useAppDispatch } from "redux/redux/store"
+import { Color } from "styling/color"
 import "twin.macro"
 
-const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
-  parentTagId,
+const AddActivityModal: Modal<{ parentId?: ActivityId }> = ({
+  parentId,
   closeModal,
 }) => {
   const dispatch = useAppDispatch()
-  const parentTag = useAppSelector((s) => selectTagById(s, parentTagId || ""))
-  const { isInUse } = useSelectActivityUsages(parentTagId)
 
   const onSubmit = ({ name, color, tagIds }: Inputs) => {
     closeModal()
     dispatch(
       addActivity({
-        activity: { tagIds },
-        activityTag: {
-          name,
-          parentTagId,
-          color,
-        },
-        newParentIsTopLevel: isRootActivityId(parentTag?.parentTagId),
-        isInUse,
+        name,
+        parentId,
+        color,
+        tagIds,
       }),
     )
   }
@@ -46,7 +38,7 @@ const AddActivityModal: Modal<{ parentTagId?: Id }> = ({
 
   type Inputs = {
     name: string
-    tagIds: Id[]
+    tagIds: TagId[]
     color?: Color
   }
 
