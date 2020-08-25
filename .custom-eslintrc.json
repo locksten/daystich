@@ -8,7 +8,7 @@
         "vars": "all",
         "args": "after-used",
         "ignoreRestSiblings": false,
-        "varsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_|^Story$",
         "argsIgnorePattern": "^_"
       }
     ]

@@ -6,7 +6,7 @@ import {
   returnTopLevelActivityToParent,
 } from "redux/ducks/activity/activity"
 import { selectActivityById } from "redux/ducks/activity/selectors"
-import { getReduxMocks } from "redux/mocks"
+import { getReduxMocks } from "redux/mocking/mocks"
 import { selectTimeSpanById } from "redux/ducks/timeSpan/selectors"
 import { removeTag } from "redux/ducks/tag/tag"
 

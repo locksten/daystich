@@ -1,9 +1,15 @@
 module.exports = {
-  stories: ["../src/**/*.stories.tsx"],
+  stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
   addons: [
-    "@storybook/preset-create-react-app",
-    "@storybook/addon-actions",
     "@storybook/addon-links",
-    "@storybook/addon-knobs/register",
+    "@storybook/addon-essentials",
+    "@storybook/preset-create-react-app",
   ],
+  ...(process.env.STORYBOOK_REACT_DOCGEN === "true"
+    ? {}
+    : {
+        typescript: {
+          reactDocgen: "none",
+        },
+      }),
 }

@@ -59,11 +59,11 @@ const EditTagModal: Modal<{ id: TagId }> = ({ id, closeModal }) => {
         </FormLabel>
         <RHFColorPicker name="color" />
         <SecondaryButton
-          text="Delete"
+          label="Delete"
           kind="danger"
           onClick={onRemoveTagClick}
         />
-        <PrimaryButton text="Save" type="submitButton" />
+        <PrimaryButton label="Save" type="submitButton" />
         <FormErrors errors={errors} />
       </Form>
       <RemoveTagModal />
@@ -105,7 +105,7 @@ const useRemoveTagWithModal = (tag: Tag) => {
       <SecondaryButton
         tw="w-full"
         kind="danger"
-        text="Nothing"
+        label="Nothing"
         onClick={() => {
           tagSelectModal.close()
           remove()

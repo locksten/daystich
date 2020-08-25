@@ -5,7 +5,7 @@ import tw from "twin.macro"
 
 export const globalStyle = css`
   body {
-    ${tw`bg-gray-100 text-gray-800`}
+    ${tw`text-gray-800`}
     font-family: 'Nunito', sans-serif;
   }
   button {

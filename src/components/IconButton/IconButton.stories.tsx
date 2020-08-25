@@ -1,9 +1,20 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { IconButton } from "components/IconButton"
+import { Meta, Story } from "@storybook/react/types-6-0"
+import "twin.macro"
+import { IconButton } from "./IconButton"
 
 export default {
-  title: "Buttons",
-}
+  title: "Components/Button/IconButton",
+  component: IconButton,
+} as Meta
 
-export const iconButton = () => <IconButton icon="emptyStar" />
+const Template: Story<Parameters<typeof IconButton>[0]> = (args) => (
+  <IconButton {...args} />
+)
+
+export const Default = Template.bind({})
+Default.args = { icon: "add" }
+
+export const CircleBackground = Template.bind({})
+CircleBackground.args = { icon: "add", background: "circle" }

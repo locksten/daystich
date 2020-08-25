@@ -1,9 +1,17 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { TextField } from "components/TextField"
+import { Meta, Story } from "@storybook/react/types-6-0"
+import "twin.macro"
+import { TextField } from "./TextField"
 
 export default {
-  title: "Forms",
-}
+  title: "Components/Form/TextField",
+  component: TextField,
+} as Meta
 
-export const textField = () => <TextField name="name" label="label" />
+const Template: Story<Parameters<typeof TextField>[0]> = (args) => (
+  <TextField {...args} />
+)
+
+export const Default = Template.bind({})
+Default.args = { label: "label", placeholder: "placeholder" }

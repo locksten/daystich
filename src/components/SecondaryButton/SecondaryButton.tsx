@@ -6,12 +6,12 @@ import "twin.macro"
 import tw from "twin.macro"
 
 type SecondaryButton = ClickableProps & {
-  text: string
+  label: string
   kind?: "normal" | "danger"
 }
 
 export const SecondaryButton: FC<SecondaryButton> = ({
-  text,
+  label,
   kind = "normal",
   ...props
 }) => (
@@ -22,6 +22,6 @@ export const SecondaryButton: FC<SecondaryButton> = ({
     `}
     {...props}
   >
-    <div tw="flex justify-center items-center">{text}</div>
+    <div tw="flex justify-center items-center">{label}</div>
   </Clickable>
 )

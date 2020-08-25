@@ -1,9 +1,17 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { PrimaryButton } from "components/PrimaryButton"
+import { Meta, Story } from "@storybook/react/types-6-0"
+import "twin.macro"
+import { PrimaryButton } from "./PrimaryButton"
 
 export default {
-  title: "Buttons",
-}
+  title: "Components/Button/PrimaryButton",
+  component: PrimaryButton,
+} as Meta
 
-export const primaryButton = () => <PrimaryButton text="Button" />
+const Template: Story<Parameters<typeof PrimaryButton>[0]> = (args) => (
+  <PrimaryButton {...args} />
+)
+
+export const Primary = Template.bind({})
+Primary.args = { label: "label" }

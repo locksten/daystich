@@ -1,6 +1,6 @@
 import { selectIsFirstLaunchInitDone } from "redux/ducks/meta/meta"
 import { selectTimespans } from "redux/ducks/timeSpan/selectors"
-import { getReduxMocks } from "redux/mocks"
+import { getReduxMocks } from "redux/mocking/mocks"
 import {
   selectActivityById,
   selectActivities,

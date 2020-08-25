@@ -42,7 +42,7 @@ const AddTagModal: Modal<{ parentId?: TagId }> = ({ closeModal, parentId }) => {
           <RHFTextField name="name" rules={{ required: "Name is required" }} />
         </FormLabel>
         <RHFColorPicker name="color" />
-        <PrimaryButton text="Add" type="submitButton" />
+        <PrimaryButton label="Add" type="submitButton" />
         <FormErrors errors={errors} />
       </Form>
     </FormModal>

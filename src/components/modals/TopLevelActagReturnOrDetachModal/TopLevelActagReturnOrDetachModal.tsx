@@ -34,7 +34,7 @@ const TopLevelActagReturnOrDetachModal: Modal<{ entity: Activity | Tag }> = ({
   return (
     <FormModal tw="grid gap-2">
       <SecondaryButton
-        text={`Return ${entity.name} to ${parent.name}`}
+        label={`Return ${entity.name} to ${parent.name}`}
         onClick={() => {
           dispatch(
             entity._type === "activity"
@@ -45,7 +45,7 @@ const TopLevelActagReturnOrDetachModal: Modal<{ entity: Activity | Tag }> = ({
         }}
       />
       <SecondaryButton
-        text={`Detach ${entity.name} from ${parent.name}`}
+        label={`Detach ${entity.name} from ${parent.name}`}
         onClick={() => {
           dispatch(
             entity._type === "activity"

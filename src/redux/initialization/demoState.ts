@@ -1,5 +1,5 @@
 import { AppStore } from "redux/redux/store"
-import { getReduxMocks } from "redux/mocks"
+import { getReduxMocks } from "redux/mocking/mocks"
 
 export const addDemoState = (store: AppStore) => {
   const { m } = getReduxMocks(store)

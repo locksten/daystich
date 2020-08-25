@@ -65,7 +65,7 @@ export const Single = <T extends Activity | Tag>({
     >
       <div
         css={css`
-          ${tw`h-5 flex justify-between items-center -ml-1 pl-1 rounded-md text-white overflow-hidden`};
+          ${tw`h-5 flex justify-between items-center rounded-md text-white overflow-hidden`};
           ${isTopLevel && tw`text-xl font-extrabold`};
           ${!isTopLevel && tw`text-lg font-semibold`};
           ${!node.hasChildren &&
@@ -77,7 +77,7 @@ export const Single = <T extends Activity | Tag>({
         `}
         {...dragHandleProps}
       >
-        <Name tw="h-full w-full text-left min-w-0 truncate box-border">
+        <Name tw="h-full flex items-center px-1 w-full text-left min-w-0 truncate box-border">
           {node.entity.name}
         </Name>
         <Side />

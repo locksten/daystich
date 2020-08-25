@@ -11,9 +11,8 @@ import rootReducer, { persistConfig, RootState } from "redux/redux/rootReducer"
 import { firstLaunchInit } from "redux/initialization/firstLaunchInit"
 
 const middleware = getDefaultMiddleware({
-  serializableCheck: {
-    ignoredActions: ["persist/PERSIST"],
-  },
+  serializableCheck: false,
+  immutableCheck: false,
 })
 
 if (process.env.NODE_ENV === "development") {

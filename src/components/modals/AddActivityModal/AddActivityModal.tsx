@@ -57,7 +57,7 @@ const AddActivityModal: Modal<{ parentId?: ActivityId }> = ({
         <FormLabel name="tagIds" label="Tags">
           <RHFTagList name="tagIds" />
         </FormLabel>
-        <PrimaryButton text="Add" type="submitButton" />
+        <PrimaryButton label="Add" type="submitButton" />
         <FormErrors errors={errors} />
       </Form>
     </FormModal>

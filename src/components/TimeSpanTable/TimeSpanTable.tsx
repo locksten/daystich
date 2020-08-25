@@ -91,7 +91,7 @@ export const TimeSpanTable: FC<{}> = () => {
         <TextField ref={register} name="activityId" label="activityId" />
         <TextField ref={register} name="tagIds" label="tagIds" />
         <TextField ref={register} name="startTime" label="startTime" />
-        <PrimaryButton text="Add" type="submitButton" />
+        <PrimaryButton label="Add" type="submitButton" />
       </form>
     </Card>
   )

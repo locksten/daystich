@@ -1,5 +1,5 @@
 import { AppStore } from "redux/redux/store"
-import { MockStore } from "redux/mocks"
+import { MockStore } from "redux/mocking/mocks"
 import {
   selectIsFirstLaunchInitDone,
   finishFirstLaunchInit,

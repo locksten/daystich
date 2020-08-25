@@ -87,7 +87,7 @@ export const detachTopLevelNestedOrderableFromParent = <
     changes: {
       parentId: undefined,
       ordering: undefined,
-    },
+    } as Partial<T>,
   })
   updateOtherOrderings(state, entity, {
     parentId: undefined,
@@ -107,7 +107,7 @@ export const returnTopLevelNestedOrderableToParent = <
     id: entity.id,
     changes: {
       topLevelOrdering: undefined,
-    },
+    } as Partial<T>,
   })
   updateOtherOrderings(state, entity, {
     topLevelOrdering: undefined,

@@ -70,11 +70,11 @@ const EditActivityModal: Modal<{ id: ActivityId }> = ({ id, closeModal }) => {
           <RHFTagList name="tagIds" />
         </FormLabel>
         <SecondaryButton
-          text="Delete"
+          label="Delete"
           kind="danger"
           onClick={onRemoveActivityClick}
         />
-        <PrimaryButton text="Save" type="submitButton" />
+        <PrimaryButton label="Save" type="submitButton" />
         <FormErrors errors={errors} />
         <RemoveActivityModal />
       </Form>
